@@ -27,8 +27,8 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 ## Bloqueos
 - **Modo B (precios verificados) no viable gratis**: Booking y Expedia exigen ser partner; Amadeus Self-Service cerró el 2026-07-17.
 
-## Cambios pendientes de publicar
-Commit local: enlace de Booking por coordenadas (D-010) y revisión de robustez (D-011). **Falta  (necesita permiso del usuario).**
+## Publicación
+D-010 y D-011 publicados en https://hotelscout.pages.dev el 2026-09-23 (commit eaa931d) y verificados en la web real: enlace de Booking por coordenadas, aviso de habitaciones > adultos, texto de ayuda bajo la lista.
 
 ## Errores conocidos
 - Overpass público: 429/504 intermitentes; mitigado con reintentos, instancia alternativa y caché.
