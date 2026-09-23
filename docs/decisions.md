@@ -29,3 +29,6 @@ El usuario abrió «Buscar en Booking.com» y confirmó que **mantiene fechas y 
 
 ## D-008 · 2026-09-23 · Publicación autorizada
 El usuario autoriza: crear/usar el repositorio en su GitHub (`EricKColl`) y hacer `git push`; usar su cuenta de Cloudflare; `PROXY_CONTACT=erickcollrodriguez@gmail.com`. El despliegue en sí se confirma paso a paso antes de ejecutarse.
+
+## D-009 · 2026-09-23 · Despliegue en Cloudflare Pages realizado (D-003 resuelta)
+Publicado en **https://hotelscout.pages.dev** desde `EricKColl/hotelscout` (rama `main`, build `npm run build`, salida `dist`, `PROXY_CONTACT` configurado). Cloudflare ofrece por defecto el flujo de Workers; se entró en Pages por el enlace directo `…/pages/new/provider/github`. Alta sin tarjeta según lo que vio el usuario (no se le pidió pago). Comprobado en real: ver `qa-report.md`.

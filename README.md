@@ -41,7 +41,7 @@ npm run icons          # regenera los iconos PWA
 Ver `.env.example`: solo `PROXY_CONTACT` (contacto incluido en el `User-Agent` del proxy). No hay claves ni secretos.
 
 ## Despliegue
-[`docs/deployment.md`](docs/deployment.md) (Cloudflare Pages, plan gratuito).
+Publicado en https://hotelscout.pages.dev. [`docs/deployment.md`](docs/deployment.md) (Cloudflare Pages, plan gratuito).
 
 ## Proveedores y condiciones de uso
 | Servicio | Uso | Condiciones |
@@ -63,4 +63,4 @@ Sin cuentas, sin analítica ni rastreadores. Favoritos e historial están en `lo
 MIT (ver `LICENSE`).
 
 ## Problemas conocidos
-Overpass público es intermitente (429/504); Firefox/Safari sin probar; el despliegue en Cloudflare aún no se ha realizado.
+Overpass público es intermitente (429/504); Firefox/Safari sin probar; una búsqueda nueva puede tardar hasta ~50 s si Overpass está saturado.

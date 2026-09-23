@@ -1,6 +1,6 @@
 # Despliegue y publicación — HotelScout
 
-Estado: **preparado, NO desplegado.** Nada de esto se hace sin tu permiso expreso (crear cuentas, `git push` y publicar). Documentación de Cloudflare consultada el 2026-09-23: [Vite en Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-a-vite3-project/), [Pages Functions](https://developers.cloudflare.com/pages/functions/get-started/), [límites de Pages](https://developers.cloudflare.com/pages/platform/limits/), [precios de Workers](https://developers.cloudflare.com/workers/platform/pricing/).
+Estado: **DESPLEGADO el 2026-09-23 en https://hotelscout.pages.dev** (repositorio `EricKColl/hotelscout`). Cada `git push` a `main` recompila y publica solo. Nota: Cloudflare ofrece por defecto el flujo de Workers; para Pages usar `https://dash.cloudflare.com/<cuenta>/pages/new/provider/github`. Nada se hace sin permiso expreso (cuentas, `git push`, cambios de despliegue). Documentación de Cloudflare consultada el 2026-09-23: [Vite en Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-a-vite3-project/), [Pages Functions](https://developers.cloudflare.com/pages/functions/get-started/), [límites de Pages](https://developers.cloudflare.com/pages/platform/limits/), [precios de Workers](https://developers.cloudflare.com/workers/platform/pricing/).
 
 ## Qué necesitas (todo gratuito, sin tarjeta según la documentación; ❓ el alta real no se ha comprobado)
 1. Una cuenta de **GitHub** (github.com, gratis).

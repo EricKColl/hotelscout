@@ -29,7 +29,7 @@ Fecha: 2026-09-23 · Entorno: Windows 11, Node 24.15, Microsoft Edge (Chromium) 
 | Teselas OSM | Verificado en el navegador integrado (se cargaron teselas); bajo la CSP prevista |
 | Booking (enlace de búsqueda) | **No verificado en real**: solo se comprueba que la URL se construye con los parámetros correctos. Que Booking conserve fechas y ocupación debe comprobarlo el usuario (ver `deployment.md`, «Prueba de enlaces») |
 | Booking Demand API, Expedia Rapid, Amadeus | **No integradas** (requieren acuerdo comercial o ya no existen) |
-| Cloudflare Pages/Functions | **No desplegado ni probado en Cloudflare.** El proxy se probó con `fetch` simulado y en el servidor de desarrollo; la Cache API solo funciona en Cloudflare |
+| Cloudflare Pages + Functions | **Verificado en real el 2026-09-23** en https://hotelscout.pages.dev: web 200; cabeceras de seguridad y CSP presentes; `manifest.webmanifest` 200; `sw.js` con `no-cache`; `/api/geocode` devuelve Nominatim y la segunda petición idéntica responde `X-HotelScout-Cache: HIT` (la caché funciona en pages.dev); entradas inválidas → 400; `/api/places` devuelve 40 alojamientos reales cerca de Atocha (800 m). En el navegador: búsqueda «Madrid Atocha» → 51 alojamientos localizados con mapa y teselas, service worker registrado, sin errores. Una búsqueda sin caché tardó ~50 s (Overpass saturado); las repetidas son inmediatas |
 
 ## Fallos encontrados y corregidos durante el desarrollo
 
