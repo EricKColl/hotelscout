@@ -43,7 +43,7 @@ function describeError(err: unknown): { title: string; detail: string; tone: 'wa
       case 'rate_limited':
         return { title: 'Límite de solicitudes alcanzado', detail: 'Los servicios gratuitos de mapas limitan las consultas. Espera un minuto y vuelve a intentarlo. Esto no significa que no haya alojamientos.', tone: 'warning' }
       case 'upstream_unavailable':
-        return { title: 'Servicio de mapas temporalmente no disponible', detail: 'El servidor público de OpenStreetMap está saturado o no responde. Esto no significa que no haya alojamientos: inténtalo de nuevo en unos minutos.', tone: 'warning' }
+        return { title: 'Servicio de mapas temporalmente no disponible', detail: 'El servidor público de OpenStreetMap está saturado o no responde. Esto no significa que no haya alojamientos: inténtalo de nuevo en unos minutos o prueba con un radio menor.', tone: 'warning' }
       case 'invalid_response':
         return { title: 'Datos insuficientes', detail: err.message, tone: 'error' }
       case 'invalid_request':
@@ -305,7 +305,7 @@ export default function App() {
               )}
 
               {lodgingsQuery.isSuccess && lodgingsQuery.data.truncated && (
-                <Notice tone="warning" title="Búsqueda parcial">El servicio indicó que el resultado puede estar incompleto. Prueba con un radio menor.</Notice>
+                <Notice tone="warning" title="Búsqueda parcial">Hay tantos alojamientos que el resultado se ha recortado y pueden faltar algunos, incluso cercanos. Prueba con un radio menor.</Notice>
               )}
 
               {lodgingsQuery.isSuccess && lodgings!.length === 0 && (
@@ -371,7 +371,7 @@ export default function App() {
                   </ErrorBoundary>
 
                   <p className="text-sm text-slate-600" role="status">
-                    Mostrando {visible.length} de {lodgings!.length}. Las distancias son en línea recta, no un recorrido a pie. «Buscar en Booking.com» abre Booking con tus fechas y los alojamientos más cercanos a ese punto: el primero debería ser el elegido; si no está en Booking, verás los de alrededor.
+                    Mostrando {visible.length} de {lodgings!.length}. Las distancias son en línea recta, no un recorrido a pie. «Buscar en Booking.com» abre Booking con tus fechas y los alojamientos más cercanos a ese punto: el primero debería ser el elegido; si no está en Booking, verás los de alrededor. Si Booking muestra su portada, vuelve atrás y pulsa otra vez.
                   </p>
                   {visible.length === 0 ? (
                     <Notice title="Ningún alojamiento cumple los filtros">

@@ -212,3 +212,29 @@ test('móvil: sin desbordamiento horizontal', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(1)
 })
+
+test('almacenamiento local dañado: la app arranca igual', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('hotelscout:favorites:v1', '{roto')
+    localStorage.setItem('hotelscout:history:v1', JSON.stringify({ no: 'lista' }))
+  })
+  await mockApi(page)
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Alojamientos cerca')
+  await expect(page.getByLabel('Lugar de referencia')).toBeVisible()
+})
+
+test('más habitaciones que adultos y fechas demasiado lejanas se avisan antes de buscar', async ({ page }) => {
+  await mockApi(page)
+  await page.goto('/')
+  await page.getByLabel('Lugar de referencia').fill('Atocha')
+  await page.getByLabel('Adultos').fill('1')
+  await page.getByLabel('Habitaciones').fill('3')
+  await page.getByRole('button', { name: 'Buscar lugar' }).click()
+  await expect(page.getByText('No puede haber más habitaciones que adultos.')).toBeVisible()
+  await page.getByLabel('Habitaciones').fill('1')
+  await page.getByLabel('Entrada').fill('2030-01-01')
+  await page.getByLabel('Salida').fill('2030-01-03')
+  await page.getByRole('button', { name: 'Buscar lugar' }).click()
+  await expect(page.getByText(/16 meses/)).toBeVisible()
+})

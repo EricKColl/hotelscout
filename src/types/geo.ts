@@ -57,6 +57,7 @@ export type OsmElement = z.infer<typeof osmElementSchema>
 export const overpassResponseSchema = z.object({
   elements: z.array(osmElementSchema),
   remark: z.string().optional(),
+  truncated: z.boolean().optional(),
 })
 
 /** Códigos de error diferenciados (SPEC §2.2). */

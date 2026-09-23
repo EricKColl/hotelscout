@@ -58,6 +58,13 @@ const httpsOnly = (raw?: string): string | undefined => {
   }
 }
 
+/** OSM escribe estrellas como «4», «4S», «3.5»…; solo se aceptan valores de 1 a 5. */
+export function parseStars(raw?: string): number | undefined {
+  if (!raw) return undefined
+  const value = Number.parseFloat(raw.replace(',', '.'))
+  return Number.isFinite(value) && value >= 1 && value <= 5 ? value : undefined
+}
+
 /** Convierte elementos de Overpass en alojamientos con distancia real al punto de referencia. */
 export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodging[] {
   const seen = new Set<string>()
@@ -73,7 +80,7 @@ export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodgi
     const sourceId = `${el.type}/${el.id}`
     if (seen.has(sourceId)) continue
     seen.add(sourceId)
-    const stars = Number(tags.stars)
+    const stars = parseStars(tags.stars)
     const street = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
     const address = [street, tags['addr:city']].filter(Boolean).join(', ') || undefined
     out.push({
@@ -85,13 +92,20 @@ export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodgi
       latitude,
       longitude,
       distanceMeters: haversineMeters(origin, { latitude, longitude }),
-      stars: Number.isFinite(stars) && stars >= 1 && stars <= 5 ? stars : undefined,
+      stars,
       websiteUrl: httpsOnly(tags.website ?? tags['contact:website']),
       phone: tags.phone ?? tags['contact:phone'],
       address,
     })
   }
-  return out.sort((a, b) => a.distanceMeters - b.distanceMeters)
+  // En OSM un mismo hotel suele estar dos veces (edificio + punto): mismo nombre a menos de 60 m = duplicado.
+  const sorted = out.sort((a, b) => a.distanceMeters - b.distanceMeters)
+  const unique: Lodging[] = []
+  for (const l of sorted) {
+    const dup = unique.some((u) => u.name.toLowerCase() === l.name.toLowerCase() && haversineMeters(u, l) < 60)
+    if (!dup) unique.push(l)
+  }
+  return unique
 }
 
 /** Coloca primero los lugares del tipo que el usuario dijo buscar; conserva el orden relativo del resto. */

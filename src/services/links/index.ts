@@ -49,7 +49,9 @@ export interface BookingTarget {
  * Booking) sale el primero. Si no está en Booking, salen los más cercanos. Comprobado en un navegador real el 2026-09-23.
  */
 export function buildBookingSearchUrl(target: BookingTarget, trip: Trip): string | undefined {
-  const name = target.name.trim()
+  // Sin caracteres de control ni espacios repetidos, y con longitud acotada.
+  // eslint-disable-next-line no-control-regex
+  const name = target.name.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100)
   if (!name || !isValidCoordinate(target.latitude, target.longitude)) return undefined
   const params = new URLSearchParams()
   params.set('ss', name)

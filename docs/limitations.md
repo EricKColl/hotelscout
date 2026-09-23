@@ -18,6 +18,9 @@ Lo que **sí** hace y lo que **no** hace la aplicación (2026-09-23).
 
 ## Enlaces
 - «Buscar en Booking.com» usa una URL de búsqueda **no documentada oficialmente**. Puede dejar de conservar fechas u ocupación sin aviso. Decisión D-004.
+- Booking solo admite fechas hasta ~16 meses vista y ajusta las habitaciones a los adultos; la app lo valida antes de buscar.
+- Booking no lista todos los alojamientos de OpenStreetMap: si no aparece, verás los más cercanos. A veces Booking muestra su portada por un control antirrobots: vuelve atrás y pulsa otra vez.
+- Búsqueda limitada a 500 alojamientos; si se alcanza, la app avisa de que puede faltar alguno.
 - No se usan enlaces de Google Hotels ni de Expedia (no fiables o solo para socios).
 - No hay enlaces de afiliado: no se genera ningún ingreso.
 

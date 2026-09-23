@@ -8,8 +8,8 @@ Fecha: 2026-09-23 · Entorno: Windows 11, Node 24.15, Microsoft Edge (Chromium) 
 |---|---|---|
 | Lint | `npm run lint` | Sin errores ni avisos |
 | Tipos + build de producción | `npm run build` | Correcto (JS principal ≈ 114 kB gzip; mapa en bloque aparte ≈ 44 kB gzip, carga diferida) |
-| Unitarias + integración (mocks) | `npm test` | **48 / 48 superadas** (4 archivos) |
-| End-to-end (Playwright, Edge) | `npm run test:e2e` | **14 / 14 superadas** |
+| Unitarias + integración (mocks) | `npm test` | **78 / 78 superadas** (5 archivos) |
+| End-to-end (Playwright, Edge) | `npm run test:e2e` | **16 / 16 superadas** |
 | Accesibilidad automática (axe) | incluida en e2e | 0 infracciones WCAG 2.x A/AA en inicio y resultados |
 | Dependencias | `npm audit` | 0 vulnerabilidades conocidas |
 | Prueba real contra OSM | `npm run test:live` | Ver «Integraciones» |
@@ -39,7 +39,13 @@ Fecha: 2026-09-23 · Entorno: Windows 11, Node 24.15, Microsoft Edge (Chromium) 
 4. Estaciones duplicadas (parada + estación) en la lista de coincidencias → se agrupan.
 5. Nombres de categoría de Nominatim (`railway/stop`, `building/train_station`) no reconocidos → añadidos.
 
+## Revisión de robustez (D-011)
+
+Pruebas reales en Booking con navegador real: Tokio (nombre japonés), Buenos Aires (coordenadas negativas), Nueva York, Beverly Hills (apóstrofo), Dubái (nombre árabe, 2 niños con edades): el hotel sale el primero o entre los primeros y se conservan fechas y huéspedes. Descubiertos y corregidos: fechas > ~16 meses, habitaciones > adultos, respuestas de Overpass con error dentro de un 200, recorte silencioso de resultados, duplicados de OSM, estrellas con formato «4S», almacenamiento local dañado, Safari antiguo, nombres con caracteres de control. Añadidas 30 pruebas (entradas extremas del enlace, Overpass con «remark», almacenamiento corrupto) y 2 e2e.
+
 ## Problemas pendientes y no verificados
+
+- **Booking a veces muestra su portada** por un control antirrobots intermitente (no depende de nosotros); se avisa en pantalla. Booking no lista todos los hoteles de OSM (p. ej. Olive Inn, Mörfelden-Walldorf: salen los más cercanos).
 
 - **Firefox y Safari no probados** (solo Chromium/Edge). Tampoco dispositivos móviles reales.
 - **Accesibilidad:** solo automática (axe); no se ha probado con lector de pantalla. El mapa se excluyó del análisis de axe.

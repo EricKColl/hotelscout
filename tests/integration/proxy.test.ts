@@ -125,3 +125,27 @@ describe('proxy /api/places con Overpass saturado', () => {
     expect(deps.calls).toHaveLength(3)
   })
 })
+
+describe('proxy /api/places: Overpass devuelve 200 con error dentro', () => {
+  it('un «remark» de tiempo agotado se trata como error y no como «sin alojamientos»', async () => {
+    const deps = makeDeps(async () => okJson({ elements: [], remark: 'runtime error: Query timed out in "query" at line 3 after 22 seconds.' }))
+    const res = await handlePlaces(req('/api/places?lat=40.4&lon=-3.69&radius=5000'), {}, deps)
+    expect(res.status).toBe(504)
+    expect((await res.json()).error.code).toBe('upstream_unavailable')
+    expect(deps.calls).toHaveLength(3)
+  })
+  it('no guarda en caché una respuesta con error', async () => {
+    const store = new Map<string, Response>()
+    const cache: ProxyDeps['cache'] = { match: async (r) => store.get(r.url)?.clone(), put: async (r, res) => { store.set(r.url, res) } }
+    const deps = makeDeps(async () => okJson({ elements: [], remark: 'runtime error: out of memory' }), cache)
+    await handlePlaces(req('/api/places?lat=40.4&lon=-3.69&radius=5000'), {}, deps)
+    expect(store.size).toBe(0)
+  })
+  it('recupera con la segunda instancia si la primera falla dentro del 200', async () => {
+    let n = 0
+    const deps = makeDeps(async () => okJson(n++ === 0 ? { elements: [], remark: 'runtime error: timed out' } : { elements: [{ type: 'node', id: 1 }] }))
+    const res = await handlePlaces(req('/api/places?lat=40.4&lon=-3.69&radius=800'), {}, deps)
+    expect(res.status).toBe(200)
+    expect((await res.json()).elements).toHaveLength(1)
+  })
+})

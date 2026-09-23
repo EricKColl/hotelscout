@@ -4,12 +4,20 @@ import { dedupePlaces, normalizeLodgings, normalizePlaces } from './normalize'
 
 const TIMEOUT_MS = 55_000
 
+/** AbortSignal.timeout no existe en navegadores antiguos (Safari < 16): alternativa equivalente. */
+function timeoutSignal(ms: number): AbortSignal {
+  if (typeof AbortSignal.timeout === 'function') return AbortSignal.timeout(ms)
+  const controller = new AbortController()
+  setTimeout(() => controller.abort(), ms)
+  return controller.signal
+}
+
 async function getJson(path: string, params: Record<string, string>, signal?: AbortSignal): Promise<unknown> {
   const url = `${path}?${new URLSearchParams(params).toString()}`
   let res: Response
   try {
     res = await fetch(url, {
-      signal: signal ?? AbortSignal.timeout(TIMEOUT_MS),
+      signal: signal ?? timeoutSignal(TIMEOUT_MS),
       headers: { Accept: 'application/json' },
     })
   } catch {
@@ -59,6 +67,6 @@ export async function searchLodgings(
   const all = normalizeLodgings(parsed.data.elements, origin)
   return {
     lodgings: all.filter((l) => l.distanceMeters <= radiusMeters),
-    truncated: Boolean(parsed.data.remark),
+    truncated: Boolean(parsed.data.remark) || parsed.data.truncated === true,
   }
 }

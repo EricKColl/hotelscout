@@ -32,6 +32,7 @@ const OVERPASS_ATTEMPTS = [
   'https://overpass-api.de/api/interpreter',
 ]
 const OVERPASS_TIMEOUT_MS = 15_000
+export const OVERPASS_LIMIT = 500
 const UPSTREAM_TIMEOUT_MS = 20_000
 const GEOCODE_TTL_S = 60 * 60 * 24 * 7
 const PLACES_TTL_S = 60 * 60 * 24
@@ -134,8 +135,28 @@ export function buildOverpassQuery(lat: number, lon: number, radius: number): st
   return (
     `[out:json][timeout:20];` +
     `nwr["tourism"~"^(hotel|hostel|guest_house|motel|apartment|chalet)$"]["name"](around:${radius},${lat},${lon});` +
-    `out center tags 300;`
+    `out center tags ${OVERPASS_LIMIT};`
   )
+}
+
+/**
+ * Overpass responde 200 aunque la consulta haya fallado (tiempo agotado, memoria) y lo cuenta en "remark".
+ * Eso NO es "sin alojamientos": se trata como error (y no se guarda en caché).
+ * Si se alcanza el límite de elementos, se marca como resultado parcial.
+ */
+export function inspectOverpassBody(text: string): { ok: true; body: string } | { ok: false } {
+  let json: { elements?: unknown; remark?: unknown }
+  try {
+    json = JSON.parse(text)
+  } catch {
+    return { ok: false }
+  }
+  if (!Array.isArray(json.elements)) return { ok: false }
+  if (typeof json.remark === 'string' && /runtime error|timed out|out of memory|too many|rate_limit/i.test(json.remark)) {
+    return { ok: false }
+  }
+  const truncated = json.elements.length >= OVERPASS_LIMIT
+  return { ok: true, body: JSON.stringify({ ...json, truncated }) }
 }
 
 export async function handlePlaces(request: Request, env: ProxyEnv, deps: ProxyDeps = defaultDeps()): Promise<Response> {
@@ -171,7 +192,14 @@ export async function handlePlaces(request: Request, env: ProxyEnv, deps: ProxyD
         deps,
         OVERPASS_TIMEOUT_MS,
       )
-      if (res.ok) return res
+      if (res.ok) {
+        const checked = inspectOverpassBody(await res.clone().text())
+        if (checked.ok) {
+          return new Response(checked.body, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } })
+        }
+        last = errorResponse(504, 'upstream_unavailable', 'Overpass no pudo completar la consulta (demasiado grande o saturado).')
+        continue
+      }
       last = res
       if (res.status === 400 || res.status === 429) break
     }

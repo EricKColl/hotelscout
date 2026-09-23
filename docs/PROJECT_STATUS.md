@@ -27,6 +27,9 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 ## Bloqueos
 - **Modo B (precios verificados) no viable gratis**: Booking y Expedia exigen ser partner; Amadeus Self-Service cerró el 2026-07-17.
 
+## Cambios pendientes de publicar
+Commit local: enlace de Booking por coordenadas (D-010) y revisión de robustez (D-011). **Falta  (necesita permiso del usuario).**
+
 ## Errores conocidos
 - Overpass público: 429/504 intermitentes; mitigado con reintentos, instancia alternativa y caché.
 - Nominatim no encuentra bien consultas con ruido («estación de tren de X»).
@@ -36,7 +39,7 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 `npm install` · `npm run dev` · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (Edge instalado) · `npm run test:live` (real, con moderación; requiere `npm run dev -- --port 5199`).
 
 ## Resultados de las últimas pruebas (2026-09-23)
-lint sin avisos · `npm test` 48/48 · `npm run test:e2e` 14/14 (incl. axe y PWA sin conexión) · build OK (JS 114 kB gzip + mapa 44 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
+lint sin avisos · `npm test` 78/78 · `npm run test:e2e` 16/16 (incl. axe y PWA sin conexión) · build OK (JS 114 kB gzip + mapa 44 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
 
 ## Puntos no verificados
 `docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».

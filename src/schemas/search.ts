@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const RADIUS_OPTIONS = [300, 500, 800, 1000, 1500, 2000, 3000, 5000] as const
 export const MAX_CHILDREN = 6
+export const MAX_DAYS_AHEAD = 480
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida.')
 
@@ -56,6 +57,14 @@ export function validateTrip(trip: Trip, today: string = todayLocalISO()): TripE
   }
   if (!errors.checkIn && !errors.checkOut && nightsBetween(trip.checkIn, trip.checkOut) > 30) {
     errors.checkOut = 'La estancia máxima es de 30 noches.'
+  }
+  // Booking rechaza (y manda a su portada) las fechas a más de ~16 meses: comprobado entre 484 y 515 días.
+  if (!errors.checkOut && isRealDate(trip.checkOut) && nightsBetween(today, trip.checkOut) > MAX_DAYS_AHEAD) {
+    errors.checkOut = 'Las plataformas solo admiten fechas hasta unos 16 meses vista.'
+  }
+  // Booking recorta en silencio las habitaciones sobrantes (1 adulto y 3 habitaciones → 1 habitación).
+  if (!errors.adults && !errors.rooms && trip.rooms > trip.adults) {
+    errors.rooms = 'No puede haber más habitaciones que adultos.'
   }
   return errors
 }
