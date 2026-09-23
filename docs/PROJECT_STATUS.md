@@ -21,7 +21,7 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 - Fase 8: `README.md`, `architecture.md`, `deployment.md`, `limitations.md`, `LICENSE` (MIT a nombre del usuario; cambiable).
 
 ## Tareas pendientes (necesitan al usuario)
-1. **Probar los enlaces «Buscar en Booking.com»** (pasos en `docs/deployment.md`) y decidir según D-004.
+1. ~~Probar enlaces de Booking~~: hecho por el usuario, mantiene fechas y personas (D-007).
 2. **Permiso** para: crear repositorio GitHub y `git push`; crear cuenta Cloudflare y desplegar (D-003 sigue pendiente). Decidir el valor de `PROXY_CONTACT`.
 3. Tras desplegar: comprobar la URL real y las cabeceras; actualizar `qa-report.md`.
 4. Opcionales: probar en Firefox/Safari y móvil real; medir con Lighthouse; valorar Photon/Geoapify si Nominatim se queda corto.

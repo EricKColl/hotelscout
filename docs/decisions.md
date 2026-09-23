@@ -23,3 +23,9 @@ Se mantiene el de la especificación (React + TS + Vite + Tailwind + Leaflet + T
 
 ## D-006 · 2026-09-23 · Ajustes del usuario que prevalecen sobre SPEC.md
 Punto de control tras Fase 1; verificación en vivo con fecha; proxy evaluado con evidencias; enlaces clasificados en 3 categorías; permiso previo para cuentas, credenciales, `git push`, despliegues o costes; commit local al final de cada fase; todo en español. Contradice SPEC §23 («no te detengas tras el plan»): se sigue lo indicado por el usuario.
+
+## D-007 · 2026-09-23 · Enlace de búsqueda de Booking verificado por el usuario
+El usuario abrió «Buscar en Booking.com» y confirmó que **mantiene fechas y número de personas**. Se mantiene el enlace como «funciona pero no documentado» (D-004): sigue etiquetado «Buscar», sin precio, y puede cambiar sin aviso. Verificación puntual (2026-09-23), realizada por el usuario en su navegador.
+
+## D-008 · 2026-09-23 · Publicación autorizada
+El usuario autoriza: crear/usar el repositorio en su GitHub (`EricKColl`) y hacer `git push`; usar su cuenta de Cloudflare; `PROXY_CONTACT=erickcollrodriguez@gmail.com`. El despliegue en sí se confirma paso a paso antes de ejecutarse.
