@@ -80,7 +80,10 @@ test('flujo completo: buscar, filtrar, ordenar, mapa, enlace, favorito e histori
   const url = new URL(href)
   expect(url.hostname).toBe('www.booking.com')
   expect(url.searchParams.get('group_adults')).toBe('3')
-  expect(url.searchParams.get('ss')).toBe('Hotel Test Uno, Madrid')
+  expect(url.searchParams.get('ss')).toBe('Hotel Test Uno')
+  expect(url.searchParams.get('dest_type')).toBe('latlong')
+  expect(url.searchParams.get('latitude')).toBe('40.407500')
+  expect(url.searchParams.get('order')).toBe('distance_from_search')
   expect(await link.getAttribute('rel')).toBe('noopener noreferrer')
   expect(await link.getAttribute('target')).toBe('_blank')
 

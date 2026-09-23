@@ -371,7 +371,7 @@ export default function App() {
                   </ErrorBoundary>
 
                   <p className="text-sm text-slate-600" role="status">
-                    Mostrando {visible.length} de {lodgings!.length}. Las distancias son en línea recta, no un recorrido a pie.
+                    Mostrando {visible.length} de {lodgings!.length}. Las distancias son en línea recta, no un recorrido a pie. «Buscar en Booking.com» abre Booking con tus fechas y los alojamientos más cercanos a ese punto: el primero debería ser el elegido; si no está en Booking, verás los de alrededor.
                   </p>
                   {visible.length === 0 ? (
                     <Notice title="Ningún alojamiento cumple los filtros">

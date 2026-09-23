@@ -32,3 +32,7 @@ El usuario autoriza: crear/usar el repositorio en su GitHub (`EricKColl`) y hace
 
 ## D-009 · 2026-09-23 · Despliegue en Cloudflare Pages realizado (D-003 resuelta)
 Publicado en **https://hotelscout.pages.dev** desde `EricKColl/hotelscout` (rama `main`, build `npm run build`, salida `dist`, `PROXY_CONTACT` configurado). Cloudflare ofrece por defecto el flujo de Workers; se entró en Pages por el enlace directo `…/pages/new/provider/github`. Alta sin tarjeta según lo que vio el usuario (no se le pidió pago). Comprobado en real: ver `qa-report.md`.
+
+## D-010 · 2026-09-23 · El enlace de Booking pasa a buscar por coordenadas (corrige D-007)
+**Problema (reportado por el usuario, reproducido):** con `ss=<nombre>, <ciudad>` Booking interpretaba mal el texto: «Olive Inn, Fráncfort del Meno» terminaba en «Menorca» (fragmento «Meno») y «Olive Inn, Mörfelden-Walldorf» devolvía la portada con `errorc_searchstring_not_found=ss`. Solo el nombre podía dar otro hotel del mismo nombre (Olive Inn en Kanyakumari, India).
+**Solución:** `ss=<nombre>` + `dest_type=latlong` + `latitude`/`longitude` del alojamiento (OSM) + `order=distance_from_search`. Comprobado en navegador real: «Only YOU Hotel Atocha» sale el primero («a 30 m del centro del mapa») con fechas y huéspedes intactos; sin errores en Olive Inn (que no aparece en Booking: se muestran los más cercanos). Sigue siendo «funciona pero no documentado»: etiqueta «Buscar», sin precio ni afiliado. Booking no ofrece un enlace directo a la ficha sin su API de socios.

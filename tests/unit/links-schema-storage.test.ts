@@ -8,10 +8,14 @@ const trip: Trip = { checkIn: '2026-10-10', checkOut: '2026-10-12', adults: 2, c
 const TODAY = '2026-09-23'
 
 describe('enlaces', () => {
-  it('Booking: conserva destino, fechas, huéspedes y edades, codificados, sin afiliado', () => {
-    const url = new URL(buildBookingSearchUrl('Hotel Ñandú & Spa, Madrid', trip)!)
+  it('Booking: busca por coordenadas, ordena por distancia y conserva fechas, huéspedes y edades', () => {
+    const url = new URL(buildBookingSearchUrl({ name: 'Hotel Ñandú & Spa', latitude: 40.4072786, longitude: -3.6880393 }, trip)!)
     expect(url.origin + url.pathname).toBe('https://www.booking.com/searchresults.html')
-    expect(url.searchParams.get('ss')).toBe('Hotel Ñandú & Spa, Madrid')
+    expect(url.searchParams.get('ss')).toBe('Hotel Ñandú & Spa')
+    expect(url.searchParams.get('dest_type')).toBe('latlong')
+    expect(url.searchParams.get('latitude')).toBe('40.407279')
+    expect(url.searchParams.get('longitude')).toBe('-3.688039')
+    expect(url.searchParams.get('order')).toBe('distance_from_search')
     expect(url.searchParams.get('checkin')).toBe('2026-10-10')
     expect(url.searchParams.get('checkout')).toBe('2026-10-12')
     expect(url.searchParams.get('group_adults')).toBe('2')
@@ -20,7 +24,14 @@ describe('enlaces', () => {
     expect(url.searchParams.getAll('age')).toEqual(['4', '9'])
     expect(url.searchParams.has('aid')).toBe(false)
   })
-  it('rechaza destino vacío', () => expect(buildBookingSearchUrl('  ', trip)).toBeUndefined())
+  it('no incluye la ciudad en el texto (Booking la interpretaba mal, p. ej. «Fráncfort del Meno» → Menorca)', () => {
+    const url = new URL(buildBookingSearchUrl({ name: 'Olive Inn', latitude: 50.0141985, longitude: 8.5804492 }, trip)!)
+    expect(url.searchParams.get('ss')).toBe('Olive Inn')
+  })
+  it('rechaza nombre vacío o coordenadas inválidas', () => {
+    expect(buildBookingSearchUrl({ name: '  ', latitude: 40, longitude: -3 }, trip)).toBeUndefined()
+    expect(buildBookingSearchUrl({ name: 'H', latitude: 95, longitude: -3 }, trip)).toBeUndefined()
+  })
   it('valida HTTPS, credenciales y lista blanca', () => {
     expect(isSafeExternalUrl('http://www.booking.com/x')).toBe(false)
     expect(isSafeExternalUrl('https://user:pw@www.booking.com/x')).toBe(false)
