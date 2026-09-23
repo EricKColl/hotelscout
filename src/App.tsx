@@ -53,6 +53,16 @@ function describeError(err: unknown): { title: string; detail: string; tone: 'wa
   return { title: 'Error inesperado', detail: 'Ha ocurrido un problema. Inténtalo de nuevo.', tone: 'error' }
 }
 
+function useUpdateReady(): (() => void) | undefined {
+  const [apply, setApply] = useState<() => void>()
+  useEffect(() => {
+    const h = (e: Event) => setApply(() => (e as CustomEvent<() => void>).detail)
+    window.addEventListener('hotelscout:update', h)
+    return () => window.removeEventListener('hotelscout:update', h)
+  }, [])
+  return apply
+}
+
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
   useEffect(() => {
@@ -72,6 +82,7 @@ const fmtDate = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(
 
 export default function App() {
   const online = useOnline()
+  const applyUpdate = useUpdateReady()
   const [trip, setTrip] = useState<Trip>()
   const [typeHint, setTypeHint] = useState<PlaceCategory>()
   const [candidates, setCandidates] = useState<Place[]>()
@@ -189,6 +200,12 @@ export default function App() {
         <Notice title="Cómo funciona y qué no hace">
           HotelScout <strong>localiza</strong> alojamientos con datos de OpenStreetMap. <strong>No compara precios ni comprueba disponibilidad</strong>: los botones «Buscar en Booking.com» abren una búsqueda en esa plataforma, donde debes confirmar precio y condiciones.
         </Notice>
+
+        {applyUpdate && (
+          <Notice title="Hay una versión nueva de HotelScout" action={<button type="button" onClick={applyUpdate} className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white">Actualizar ahora</button>}>
+            Se aplicará al recargar la página.
+          </Notice>
+        )}
 
         {!online && (
           <Notice tone="warning" title="Sin conexión">

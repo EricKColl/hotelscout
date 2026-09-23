@@ -1,6 +1,6 @@
 # Plan de implementación — HotelScout
 
-Fecha: 2026-09-23 · Estado: **Fase 1 completada; a la espera de aprobación para la Fase 2.**
+Fecha: 2026-09-23 · 
 
 ## 1. Entorno detectado
 
