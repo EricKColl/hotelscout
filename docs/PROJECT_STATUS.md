@@ -6,7 +6,7 @@
 Aplicación web (PWA) gratuita para localizar alojamientos cerca de un punto de referencia (estación, aeropuerto, centro, dirección) y derivar a las plataformas originales. Fuente de verdad: `docs/SPEC.md` con los ajustes del usuario recogidos en `docs/decisions.md` (D-006).
 
 ## Fase activa
-**Fase 1 completada. Detenido a la espera de aprobación del usuario para la Fase 2.**
+**Fase 2 (infraestructura) completada. Siguiente: Fase 3 (motor geográfico y proxy).**
 
 ## Arquitectura actual (propuesta, no implementada)
 PWA React + TS + Vite → Cloudflare Pages Functions (proxy con caché a Nominatim y Overpass) → OSM. Ver `docs/implementation-plan.md`.
@@ -19,6 +19,7 @@ PWA React + TS + Vite → Cloudflare Pages Functions (proxy con caché a Nominat
 - Plan y riesgos: `docs/implementation-plan.md`.
 - `CLAUDE.md`.
 - Repositorio Git local y primer commit.
+- Fase 2: Vite + React 19 + TS estricto + Tailwind 4 + Vitest + Playwright (config) + oxlint; `.env.example`; estructura de carpetas.
 
 ## Tareas pendientes
 - Aprobación de D-001…D-004 por el usuario.
@@ -31,10 +32,10 @@ PWA React + TS + Vite → Cloudflare Pages Functions (proxy con caché a Nominat
 Ninguno (aún no hay código).
 
 ## Comandos de ejecución
-Ninguno todavía (proyecto sin inicializar).
+`npm install` · `npm run dev` (desarrollo) · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (requiere instalar navegadores de Playwright: pendiente, es una descarga y se pedirá permiso).
 
 ## Resultados de las últimas pruebas
-No aplica.
+Fase 2 (2026-09-23): lint sin errores, `npm test` 1/1, `npm run build` OK (JS 68,7 kB gzip).
 
 ## Puntos no verificados
 Ver `docs/provider-research.md` §7.
