@@ -1,6 +1,6 @@
 # Plan de implementación — HotelScout
 
-Fecha: 2026-09-23 · 
+Fecha: 2026-09-23 · Estado: **Fases 1–8 completadas en local. Pendiente: prueba de enlaces por el usuario y autorización de GitHub/Cloudflare/despliegue.** (Ver `PROJECT_STATUS.md`.)
 
 ## 1. Entorno detectado
 

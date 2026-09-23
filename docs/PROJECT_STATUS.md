@@ -3,49 +3,48 @@
 Última actualización: 2026-09-23
 
 ## Objetivo
-Aplicación web (PWA) gratuita para localizar alojamientos cerca de un punto de referencia (estación, aeropuerto, centro, dirección) y derivar a las plataformas originales. Fuente de verdad: `docs/SPEC.md` con los ajustes del usuario recogidos en `docs/decisions.md` (D-006).
+PWA gratuita en español para localizar alojamientos cerca de un punto de referencia y derivar a las plataformas originales. Fuente de verdad: `docs/SPEC.md` con los ajustes del usuario (`docs/decisions.md`, D-006).
 
 ## Fase activa
-**Fases 4 y 5 (proveedores, enlaces e interfaz) completadas. Siguiente: Fase 6 (PWA y rendimiento).**
+**Fases 1–8 completadas en local. A la espera del usuario para: probar enlaces de Booking, y autorizar cuentas (GitHub/Cloudflare), `git push` y despliegue.**
 
 ## Arquitectura actual
-PWA React + TS + Vite → Cloudflare Pages Functions (proxy con caché a Nominatim y Overpass) → OSM. Ver `docs/implementation-plan.md`.
+PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim / Overpass. Ver `docs/architecture.md`.
 
 ## Tareas completadas
-- Lectura completa de SPEC.md.
-- Inspección del entorno (Node 24, npm 11, Git 2.53; sin `gh` ni Wrangler).
-- Investigación de proveedores con fuentes y fecha: `docs/provider-research.md`.
-- Registro de decisiones: `docs/decisions.md`.
-- Plan y riesgos: `docs/implementation-plan.md`.
-- `CLAUDE.md`.
-- Repositorio Git local y primer commit.
-- Fase 2: Vite + React 19 + TS estricto + Tailwind 4 + Vitest + Playwright (config) + oxlint; `.env.example`; estructura de carpetas.
-- Fase 3: proxy `functions/_lib/proxy.ts` (+ `functions/api/geocode.ts`, `places.ts`), cliente `src/services/geo/*`, Haversine, normalización, ranking por tipo de lugar; middleware de desarrollo en `vite.config.ts`.
-- Fases 4-5: enlaces validados (`src/services/links`), interfaces `LodgingSource`/`OfferProvider` (Modo B sin implementar), validaciones Zod, filtros, ordenación, mapa Leaflet (lazy), favoritos e historial locales, estados de error, aviso sin conexión, ErrorBoundary. Revisión visual real en navegador integrado (errores detectados y corregidos: fallo de Leaflet que dejaba la página en blanco, ciudad perdida al reutilizar historial, fechas caducadas del historial).
+- Fase 1: investigación y plan (`provider-research.md`, `implementation-plan.md`, `decisions.md`, `CLAUDE.md`).
+- Fase 2: Vite + React 19 + TS estricto + Tailwind 4 + Vitest + Playwright + oxlint.
+- Fase 3: proxy (`functions/_lib/proxy.ts`), cliente y normalización geográfica, Haversine.
+- Fases 4–5: enlaces validados, interfaz completa (formulario, resultados, filtros, orden, mapa, favoritos, historial, estados de error).
+- Fase 6: manifest, iconos, service worker con actualización controlada, cabeceras de seguridad (`public/_headers`).
+- Fase 7: pruebas y QA (`docs/qa-report.md`).
+- Fase 8: `README.md`, `architecture.md`, `deployment.md`, `limitations.md`, `LICENSE` (MIT a nombre del usuario; cambiable).
 
-## Tareas pendientes
-- D-001…D-004 aprobadas por el usuario el 2026-09-23 ("procedemos").
-- Fases 3–8 (ver plan).
+## Tareas pendientes (necesitan al usuario)
+1. **Probar los enlaces «Buscar en Booking.com»** (pasos en `docs/deployment.md`) y decidir según D-004.
+2. **Permiso** para: crear repositorio GitHub y `git push`; crear cuenta Cloudflare y desplegar (D-003 sigue pendiente). Decidir el valor de `PROXY_CONTACT`.
+3. Tras desplegar: comprobar la URL real y las cabeceras; actualizar `qa-report.md`.
+4. Opcionales: probar en Firefox/Safari y móvil real; medir con Lighthouse; valorar Photon/Geoapify si Nominatim se queda corto.
 
 ## Bloqueos
 - **Modo B (precios verificados) no viable gratis**: Booking y Expedia exigen ser partner; Amadeus Self-Service cerró el 2026-07-17.
 
 ## Errores conocidos
-- Overpass público es intermitente (504) y limita con 429 tras pocas consultas seguidas. Mitigado con reintentos, instancia alternativa y caché; no eliminable.
-- Nominatim no encuentra con ruido tipo «estación de tren»; «Estación de Atocha» devuelve paradas de autobús. Se ranquea por tipo de lugar elegido y se pide elegir siempre entre coincidencias.
+- Overpass público: 429/504 intermitentes; mitigado con reintentos, instancia alternativa y caché.
+- Nominatim no encuentra bien consultas con ruido («estación de tren de X»).
+- Firefox/Safari sin probar. Despliegue en Cloudflare sin probar (la Cache API solo existe allí).
 
 ## Comandos de ejecución
-`npm install` · `npm run dev` (desarrollo) · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (requiere instalar navegadores de Playwright: pendiente, es una descarga y se pedirá permiso).
+`npm install` · `npm run dev` · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (Edge instalado) · `npm run test:live` (real, con moderación; requiere `npm run dev -- --port 5199`).
 
-## Resultados de las últimas pruebas
-2026-09-23: lint sin errores; `npm test` 48/48 (unitarias + integración con mocks: 400, 401, 403, 429, 500, timeout, respuesta no JSON, caché, Overpass 504 con reintentos); build OK.
-Prueba REAL (`npm run test:live`, requiere `npm run dev -- --port 5199`): «Madrid Atocha» se resolvió vía Nominatim (40,407, -3,689) y Overpass devolvió alojamientos reales a ≤ 800 m (pasó en una ejecución). Tras varias consultas seguidas Overpass devolvió 429: la app lo muestra como «límite alcanzado». No se repite para respetar su cuota (~100 consultas/día).
+## Resultados de las últimas pruebas (2026-09-23)
+lint sin avisos · `npm test` 48/48 · `npm run test:e2e` 14/14 (incl. axe y PWA sin conexión) · build OK (JS 114 kB gzip + mapa 44 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
 
 ## Puntos no verificados
-Ver `docs/provider-research.md` §7.
+`docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».
 
 ## Próximo paso recomendado
-Fase 3: motor geográfico + proxy en Pages Functions.
+Que el usuario revise el resumen final, pruebe un enlace de Booking y decida si autoriza GitHub + Cloudflare.
 
 ## Reglas de intervención
-Pedir permiso al usuario antes de: crear cuentas, usar credenciales, `git push`, desplegar o cualquier cosa con posible coste.
+Pedir permiso antes de: crear cuentas, usar credenciales, `git push`, desplegar o cualquier cosa con posible coste.
