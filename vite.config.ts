@@ -1,9 +1,37 @@
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, type Plugin } from 'vitest/config'
+
+/** En desarrollo sirve /api/* con el mismo código que las Pages Functions de producción. */
+function devApiProxy(): Plugin {
+  const store = new Map<string, Response>()
+  const cache = {
+    match: async (r: Request) => store.get(r.url)?.clone(),
+    put: async (r: Request, res: Response) => void store.set(r.url, res),
+  }
+  return {
+    name: 'hotelscout-dev-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/')) return next()
+        const mod = (await server.ssrLoadModule('/functions/_lib/proxy.ts')) as typeof import('./functions/_lib/proxy.ts')
+        const request = new Request(new URL(req.url, 'http://localhost'), { method: req.method })
+        const env = { PROXY_CONTACT: process.env.PROXY_CONTACT }
+        const path = req.url.split('?')[0]
+        const response =
+          path === '/api/geocode' ? await mod.handleGeocode(request, env, { ...mod.defaultDeps(), cache })
+          : path === '/api/places' ? await mod.handlePlaces(request, env, { ...mod.defaultDeps(), cache })
+          : new Response('No encontrado', { status: 404 })
+        res.statusCode = response.status
+        response.headers.forEach((v: string, k: string) => res.setHeader(k, v))
+        res.end(Buffer.from(await response.arrayBuffer()))
+      })
+    },
+  }
+}
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), devApiProxy()],
   test: {
     environment: 'jsdom',
     globals: true,
