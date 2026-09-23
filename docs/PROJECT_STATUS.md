@@ -30,6 +30,9 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 ## Publicación
 D-010 y D-011 publicados en https://hotelscout.pages.dev el 2026-09-23 (commit eaa931d) y verificados en la web real: enlace de Booking por coordenadas, aviso de habitaciones > adultos, texto de ayuda bajo la lista.
 
+## Portfolio y presentación
+Integrado en el portfolio (https://erickcoll.github.io/portfolio-erick-coll/) como proyecto destacado con caso de estudio de 4 fases (repositorio del portfolio, carpeta public/hotelscout). Aquí: README con capturas y badges, imagen Open Graph, CI en GitHub Actions (.github/workflows/ci.yml, pendiente de primera ejecución real), .gitattributes.
+
 ## Errores conocidos
 - Overpass público: 429/504 intermitentes; mitigado con reintentos, instancia alternativa y caché.
 - Nominatim no encuentra bien consultas con ruido («estación de tren de X»).

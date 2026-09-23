@@ -1,66 +1,86 @@
 # HotelScout
 
-Aplicación web (PWA) en español para **localizar alojamientos cerca de un punto de referencia** —una estación, un aeropuerto, el centro o una dirección— y abrir después la plataforma original para ver precios y disponibilidad.
+[![CI](https://github.com/EricKColl/hotelscout/actions/workflows/ci.yml/badge.svg)](https://github.com/EricKColl/hotelscout/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/demo-hotelscout.pages.dev-14b8a6)](https://hotelscout.pages.dev)
+[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
 
-> **Importante:** HotelScout **no compara precios ni comprueba disponibilidad**. Ninguna API hotelera con precios reales es accesible gratis y sin acuerdo comercial (Booking y Expedia exigen ser socio; el portal gratuito de Amadeus cerró en julio de 2026). Detalle y fuentes en [`docs/provider-research.md`](docs/provider-research.md).
+**Localiza alojamientos reales cerca de una estación, un aeropuerto o una dirección**, con datos de OpenStreetMap, y abre después la plataforma para ver precios y disponibilidad. PWA en español, coste 0 €, sin cuentas ni rastreadores.
+
+🔗 **Demo:** <https://hotelscout.pages.dev>
+
+![Resultados de HotelScout cerca de la estación de Atocha](docs/img/results.webp)
+
+> **Importante:** HotelScout **no compara precios ni comprueba disponibilidad**. Ninguna API hotelera con precios reales es accesible gratis y sin acuerdo comercial (Booking y Expedia exigen ser socio; el portal gratuito de Amadeus cerró en julio de 2026). En lugar de simular tarifas, la aplicación localiza los alojamientos y lo dice con claridad. Detalle y fuentes: [`docs/provider-research.md`](docs/provider-research.md).
 
 ## Qué hace
-- Busca un lugar (Nominatim/OpenStreetMap) y te pide elegir entre coincidencias.
-- Localiza alojamientos con nombre en un radio de 300 m a 5 km (Overpass/OpenStreetMap) con distancia en línea recta.
-- Filtra por tipo, estrellas (si constan) y web propia; ordena por distancia, nombre o estrellas.
-- Mapa con punto de referencia, radio y alojamientos.
-- Enlaces: web del alojamiento, mapa y «Buscar en Booking.com» (una búsqueda con tus fechas, **no una oferta**).
-- Favoritos e historial guardados solo en tu navegador. Instalable como app; sin conexión abre la app con aviso.
 
-## Limitaciones
-Ver [`docs/limitations.md`](docs/limitations.md). En resumen: datos de OpenStreetMap incompletos a veces, sin precios, sin autocompletado, Overpass público limitado.
+- Busca un lugar (Nominatim) y **obliga a elegir** cuando hay varias coincidencias.
+- Localiza alojamientos con nombre en un radio de 300 m a 5 km (Overpass) con distancia real en línea recta (Haversine).
+- Mapa Leaflet con punto de referencia, radio y marcadores; filtros por tipo, estrellas y web propia; ordenación.
+- Botón **«Buscar en Booking.com»** con tus fechas y huéspedes: búsqueda por coordenadas ordenada por distancia. Es un enlace de búsqueda, no una oferta.
+- Favoritos e historial guardados solo en tu navegador. Instalable como app; abre sin conexión avisando de que no hay conexión.
 
-## Tecnologías
-React 19 · TypeScript estricto · Vite · Tailwind CSS 4 · Leaflet + OpenStreetMap · TanStack Query · Zod · Vitest · Playwright (+ axe) · Cloudflare Pages Functions (proxy).
+<p>
+  <img src="docs/img/home.webp" alt="Formulario de búsqueda" width="62%">
+  <img src="docs/img/mobile.webp" alt="Vista móvil" width="24%">
+</p>
 
-## Arquitectura
-[`docs/architecture.md`](docs/architecture.md). Decisiones: [`docs/decisions.md`](docs/decisions.md).
+## Decisiones de diseño
 
-## Requisitos de desarrollo
-Node.js 20 o superior (probado con 24) y npm.
+- **Nada inventado:** sin precio real, la tarjeta dice «Consultar precio»; contadores separados de «localizados» y «ofertas verificadas».
+- **Errores distintos:** sin alojamientos ≠ límite alcanzado ≠ servicio caído ≠ sin conexión ≠ búsqueda parcial.
+- **Proxy propio** (Cloudflare Pages Functions) hacia Nominatim y Overpass: cumple sus políticas (1 petición/s en total, `User-Agent`, caché, sin autocompletado), valida entradas y usa una plantilla de consulta fija.
+- **Enlaces clasificados** como oficial y documentado, funciona pero no documentado, o no fiable. Registro completo en [`docs/decisions.md`](docs/decisions.md).
+- **Validaciones basadas en pruebas reales:** fechas hasta ~16 meses, no más habitaciones que adultos, estancia máxima de 30 noches.
 
-## Instalación y scripts
-```bash
-npm install
-npm run dev            # desarrollo
-npm run build          # producción (dist/)
-npm run preview        # servir dist/
-npm run lint
-npm test               # unitarias + integración
-npm run test:e2e       # end-to-end (Edge; PW_CHANNEL=chromium tras `npx playwright install chromium`)
-npm run test:live      # comprobación REAL contra Nominatim/Overpass (requiere `npm run dev -- --port 5199`; consume cuota pública, úsala con moderación)
-npm run icons          # regenera los iconos PWA
+```text
+Navegador (React PWA) ──► /api/* (Pages Functions: caché, límites, User-Agent) ──► Nominatim · Overpass
 ```
 
-## Variables de entorno
-Ver `.env.example`: solo `PROXY_CONTACT` (contacto incluido en el `User-Agent` del proxy). No hay claves ni secretos.
+## Tecnologías
+
+React 19 · TypeScript estricto · Vite · Tailwind CSS 4 · Leaflet · TanStack Query · Zod · Vitest · Playwright + axe · Cloudflare Pages Functions · PWA con service worker propio.
+
+## Calidad
+
+| Comprobación | Resultado |
+|---|---|
+| Unitarias e integración (Vitest) | 78 |
+| End-to-end (Playwright: flujo, errores, PWA sin conexión, móvil) | 16 |
+| Accesibilidad automática (axe, WCAG 2.x A/AA) | 0 infracciones |
+| Vulnerabilidades (`npm audit`) | 0 |
+| Verificación real | Nominatim, Overpass, Cloudflare y enlaces de Booking probados en navegador real |
+
+Informe completo, incidencias encontradas y limitaciones: [`docs/qa-report.md`](docs/qa-report.md) y [`docs/limitations.md`](docs/limitations.md).
+
+## Desarrollo
+
+Requiere Node.js 20 o superior (probado con 22 y 24).
+
+```bash
+npm install
+npm run dev            # http://localhost:5173 (incluye /api con caché en memoria)
+npm run build          # producción en dist/
+npm run lint
+npm test               # unitarias + integración
+npm run test:e2e       # end-to-end (Edge instalado; PW_CHANNEL=chromium tras `npx playwright install chromium`)
+npm run test:live      # comprobación REAL contra Nominatim/Overpass; consume cuota pública, con moderación
+```
+
+Variables de entorno: solo `PROXY_CONTACT` (contacto incluido en el `User-Agent` del proxy). No hay claves ni secretos. Ver [`.env.example`](.env.example).
 
 ## Despliegue
-Publicado en https://hotelscout.pages.dev. [`docs/deployment.md`](docs/deployment.md) (Cloudflare Pages, plan gratuito).
 
-## Proveedores y condiciones de uso
-| Servicio | Uso | Condiciones |
-|---|---|---|
-| Nominatim | Geocodificación vía proxy | [Política](https://operations.osmfoundation.org/policies/nominatim/): 1 req/s, sin autocompletado, caché, identificación |
-| Overpass | Alojamientos vía proxy | [Wiki](https://wiki.openstreetmap.org/wiki/Overpass_API): ~100 consultas/día en uso regular |
-| Teselas OSM | Mapa | [Política](https://operations.osmfoundation.org/policies/tiles/): uso interactivo, atribución |
-| Cloudflare | Alojamiento + proxy | Plan Free, cuotas en `docs/deployment.md` |
+Cloudflare Pages (plan gratuito): compilación `npm run build`, salida `dist`, carpeta `functions/` detectada automáticamente. Pasos y cuotas en [`docs/deployment.md`](docs/deployment.md).
 
-Datos © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), licencia ODbL.
+## Documentación
 
-## Privacidad
-Sin cuentas, sin analítica ni rastreadores. Favoritos e historial están en `localStorage`, con botón para borrarlos. El proxy no guarda datos personales; Cloudflare y los servicios de OpenStreetMap ven la IP y las consultas como cualquier servicio web.
+[`architecture.md`](docs/architecture.md) · [`provider-research.md`](docs/provider-research.md) · [`decisions.md`](docs/decisions.md) · [`qa-report.md`](docs/qa-report.md) · [`limitations.md`](docs/limitations.md) · [`deployment.md`](docs/deployment.md)
 
-## Estado de las pruebas
-[`docs/qa-report.md`](docs/qa-report.md).
+## Datos y privacidad
+
+Datos © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), licencia ODbL. Sin cuentas ni analítica; favoritos e historial en `localStorage` con botón para borrarlos.
 
 ## Licencia
-MIT (ver `LICENSE`).
 
-## Problemas conocidos
-Overpass público es intermitente (429/504); Firefox/Safari sin probar; una búsqueda nueva puede tardar hasta ~50 s si Overpass está saturado.
+MIT — ver [`LICENSE`](LICENSE).
