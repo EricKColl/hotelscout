@@ -99,3 +99,13 @@ export function rankPlaces(places: Place[], preferred?: PlaceCategory): Place[] 
   if (!preferred) return places
   return [...places.filter((p) => p.category === preferred), ...places.filter((p) => p.category !== preferred)]
 }
+
+/** Elimina coincidencias repetidas (mismo nombre y a menos de 200 m), típicas de OSM (parada + estación). */
+export function dedupePlaces(places: Place[]): Place[] {
+  const out: Place[] = []
+  for (const p of places) {
+    const dup = out.some((q) => q.name.toLowerCase() === p.name.toLowerCase() && q.category === p.category && haversineMeters(q, p) < 200)
+    if (!dup) out.push(p)
+  }
+  return out
+}

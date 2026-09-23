@@ -1,6 +1,6 @@
 import { GeoError, nominatimResponseSchema, overpassResponseSchema, type Lodging, type Place } from '../../types/geo'
 import type { LatLon } from '../../utils/geo'
-import { normalizeLodgings, normalizePlaces } from './normalize'
+import { dedupePlaces, normalizeLodgings, normalizePlaces } from './normalize'
 
 const TIMEOUT_MS = 55_000
 
@@ -34,7 +34,7 @@ export async function searchPlaces(query: string, signal?: AbortSignal): Promise
   const json = await getJson('/api/geocode', { q }, signal)
   const parsed = nominatimResponseSchema.safeParse(json)
   if (!parsed.success) throw new GeoError('invalid_response', 'Respuesta inesperada del servicio de mapas.')
-  return normalizePlaces(parsed.data)
+  return dedupePlaces(normalizePlaces(parsed.data))
 }
 
 export interface LodgingSearchResult {

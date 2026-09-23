@@ -106,3 +106,16 @@ describe('rankPlaces / categorías reales de Nominatim', () => {
     expect(ranked).toHaveLength(2)
   })
 })
+
+import { dedupePlaces } from '../../src/services/geo/normalize'
+
+describe('dedupePlaces', () => {
+  it('quita duplicados cercanos con el mismo nombre y conserva los lejanos', () => {
+    const r = normalizePlaces([
+      { place_id: 1, lat: '40.4070', lon: '-3.6885', display_name: 'Atocha', name: 'Atocha', category: 'railway', type: 'stop' },
+      { place_id: 2, lat: '40.4071', lon: '-3.6886', display_name: 'Atocha', name: 'Atocha', category: 'railway', type: 'station' },
+      { place_id: 3, lat: '41.0', lon: '-3.0', display_name: 'Atocha', name: 'Atocha', category: 'railway', type: 'station' },
+    ])
+    expect(dedupePlaces(r)).toHaveLength(2)
+  })
+})
