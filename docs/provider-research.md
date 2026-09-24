@@ -89,6 +89,8 @@ Fuentes: [Wiki Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API) �
 Fuente: [Política de teselas](https://operations.osmfoundation.org/policies/tiles/) ✅.
 Uso interactivo normal permitido; prohibida la descarga masiva y el uso offline; atribución visible; `Referer` válido; caché mínima 7 días; «el acceso puede retirarse en cualquier momento». **Suficiente para un uso personal/pequeño**; si crece, hará falta un proveedor de teselas alternativo (❓ no evaluado).
 
+**Actualización 2026-09-24 (D-012):** el mapa usa ahora las teselas vectoriales de **OpenFreeMap** (gratis, sin registro, sin claves ni límite de visitas; atribución obligatoria; fuente: README de https://github.com/hyperknot/openfreemap, consultado el 2026-09-24) para poder rotular en español (`name:es`). Las teselas de OSM quedan solo como alternativa automática.
+
 ### 3.4 Alternativas gratuitas de geocodificación
 
 | Servicio | Gratis | Tarjeta | Autocompletado | Atribución | Clave |

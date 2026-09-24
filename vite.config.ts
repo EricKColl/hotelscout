@@ -32,6 +32,8 @@ function devApiProxy(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), devApiProxy()],
+  // MapLibre (mapa vectorial) ocupa ~1 MB sin comprimir, pero va en un trozo aparte que solo se descarga al mostrar el mapa.
+  build: { chunkSizeWarningLimit: 1100 },
   test: {
     environment: 'jsdom',
     globals: true,

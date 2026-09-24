@@ -6,7 +6,7 @@
 Navegador (PWA React + TS)
   ├─ Formulario → validación (Zod) → /api/geocode → candidatos → el usuario elige
   ├─ Punto elegido + radio → /api/places → alojamientos (Haversine, filtros, orden)
-  ├─ Mapa Leaflet (teselas OSM) · favoritos/historial (localStorage) · enlaces validados
+  ├─ Mapa Leaflet: fondo vectorial OpenFreeMap con nombres en español (MapLibre; si falla, teselas OSM) · favoritos/historial (localStorage) · enlaces validados
   └─ Service worker: guarda solo la app; nunca /api
         │  (mismo dominio)
 Cloudflare Pages Functions  (functions/api/*.ts → functions/_lib/proxy.ts)
@@ -27,6 +27,7 @@ Cloudflare Pages Functions  (functions/api/*.ts → functions/_lib/proxy.ts)
 | `src/services/geo/normalize.ts` | Nominatim → `Place`; Overpass → `Lodging` con distancia; duplicados; ranking por tipo |
 | `src/services/providers/` | `LodgingSource` (OSM) y `OfferProvider` (Modo B, sin implementar) |
 | `src/services/links/` | Constructores y validador de URLs externas |
+| `src/components/maps/` | Mapa Leaflet (`ResultsMap`), fondo vectorial con carga diferida y alternativa OSM (`vectorBase`), etiquetas en español (`spanishLabels`) — D-012 |
 | `src/schemas/search.ts` | Validaciones del formulario y fechas de calendario |
 | `src/features/` | Filtros, ordenación, almacenamiento local |
 | `src/components/`, `src/App.tsx` | Interfaz |

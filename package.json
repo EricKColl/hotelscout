@@ -15,8 +15,10 @@
     "test:live": "vitest run --config vitest.live.config.ts"
   },
   "dependencies": {
+    "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "@tanstack/react-query": "^5.103.2",
     "leaflet": "^1.9.4",
+    "maplibre-gl": "^6.11.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "^4.6.5"

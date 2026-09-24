@@ -12,7 +12,29 @@ interface Props {
   onSelect: (id: string) => void
 }
 
-/** Mapa Leaflet con teselas de OpenStreetMap. Marcadores vectoriales (sin imágenes externas). */
+/** WebGL2 es imprescindible para el mapa vectorial; sin él se usan directamente las teselas de OSM. */
+function supportsWebGL2(): boolean {
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2')
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
+    return Boolean(gl)
+  } catch {
+    return false
+  }
+}
+
+/** Teselas estándar de OpenStreetMap (nombres en el idioma local). Solo como alternativa si el mapa vectorial no carga. */
+function addOsmRaster(m: L.Map): void {
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+  }).addTo(m)
+}
+
+/**
+ * Mapa Leaflet. Fondo: mapa vectorial con nombres en español (OpenFreeMap); si no carga, teselas de OpenStreetMap.
+ * Marcadores vectoriales (sin imágenes externas).
+ */
 export default function ResultsMap({ origin, radiusMeters, lodgings, selectedId, onSelect }: Props) {
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
@@ -21,15 +43,23 @@ export default function ResultsMap({ origin, radiusMeters, lodgings, selectedId,
 
   useEffect(() => {
     if (!el.current) return
-    const m = L.map(el.current, { zoomControl: true, scrollWheelZoom: false })
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-    }).addTo(m)
+    const m = L.map(el.current, { zoomControl: false, scrollWheelZoom: false, minZoom: 1, maxZoom: 19 })
+    L.control.zoom({ zoomInTitle: 'Acercar', zoomOutTitle: 'Alejar' }).addTo(m)
+    m.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener noreferrer">Leaflet</a>')
+    const closing = new AbortController()
+    const fallback = () => {
+      if (!closing.signal.aborted) addOsmRaster(m)
+    }
+    if (supportsWebGL2()) {
+      import('./vectorBase').then((mod) => mod.addVectorBase(m, closing.signal)).catch(fallback)
+    } else {
+      fallback()
+    }
     layer.current = L.layerGroup().addTo(m)
     map.current = m
     const markerMap = markers.current
     return () => {
+      closing.abort()
       m.remove()
       map.current = null
       markerMap.clear()

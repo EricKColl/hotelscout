@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { Lodging } from '../../types/geo'
 import type { Trip } from '../../schemas/search'
 import { buildLinksForLodging } from '../../services/links'
@@ -21,9 +22,20 @@ const linkStyle: Record<string, string> = {
 }
 
 export default function LodgingCard({ lodging, trip, city, selected, favorite, onSelect, onToggleFavorite }: Props) {
-  const links = buildLinksForLodging({ ...lodging, city }, trip)
+  // Booking recibe el nombre original de OSM: es el que se comprobó en Booking (D-011, Tokio en japonés).
+  const links = buildLinksForLodging({ ...lodging, name: lodging.localName ?? lodging.name, city }, trip)
+  const item = useRef<HTMLLIElement>(null)
+
+  // Al elegir un alojamiento en el mapa, la lista se desplaza hasta su ficha (si ya se ve, no se mueve).
+  useEffect(() => {
+    if (!selected) return
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    item.current?.scrollIntoView?.({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' })
+  }, [selected])
+
   return (
     <li
+      ref={item}
       className={`rounded-xl border bg-white p-4 shadow-sm ${selected ? 'border-rose-500 ring-2 ring-rose-200' : 'border-slate-200'}`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -33,6 +45,7 @@ export default function LodgingCard({ lodging, trip, city, selected, favorite, o
               {lodging.name}
             </button>
           </h3>
+          {lodging.localName && <p className="text-sm text-slate-600">Nombre local: {lodging.localName}</p>}
           <p className="text-sm text-slate-600">
             {KIND_LABELS[lodging.kind] ?? lodging.kind}
             {lodging.stars ? ` · ${lodging.stars}★ (dato de OpenStreetMap)` : ''}

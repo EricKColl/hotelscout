@@ -8,6 +8,7 @@ test('accesibilidad (axe, WCAG 2.x A/AA) en inicio y resultados', async ({ page 
   await page.route('**/api/geocode*', (r) => r.fulfill({ json: [ATOCHA] }))
   await page.route('**/api/places*', (r) => r.fulfill({ json: OVERPASS }))
   await page.route('https://tile.openstreetmap.org/**', (r) => r.abort())
+  await page.route('https://tiles.openfreemap.org/**', (r) => r.abort())
   await page.goto('/')
   const tags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
   const home = await new AxeBuilder({ page }).withTags(tags).analyze()
