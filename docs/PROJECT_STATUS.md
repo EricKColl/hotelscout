@@ -1,6 +1,6 @@
 # Estado del proyecto — HotelScout
 
-Última actualización: 2026-09-23
+Última actualización: 2026-09-24
 
 ## Objetivo
 PWA gratuita en español para localizar alojamientos cerca de un punto de referencia y derivar a las plataformas originales. Fuente de verdad: `docs/SPEC.md` con los ajustes del usuario (`docs/decisions.md`, D-006).
@@ -19,6 +19,8 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 - Fase 6: manifest, iconos, service worker con actualización controlada, cabeceras de seguridad (`public/_headers`).
 - Fase 7: pruebas y QA (`docs/qa-report.md`).
 - Fase 8: `README.md`, `architecture.md`, `deployment.md`, `limitations.md`, `LICENSE` (MIT a nombre del usuario; cambiable).
+
+- Mejora D-012 (2026-09-24): mapa con nombres en español (OpenFreeMap + MapLibre, alternativa automática a OSM), hoteles con nombre en otro alfabeto traducidos según OSM («Nombre local» debajo), clic en marcador → la lista salta a su ficha, controles del mapa en español. En la rama `claude/epic-darwin-ibmafq`, **pendiente de revisar y fusionar en `main`**.
 
 ## Tareas pendientes
 1. Opcionales: probar en Firefox/Safari y en móvil real (instalación PWA); Lighthouse; mejorar la latencia de Overpass (búsqueda sin caché ~50 s); valorar Photon/Geoapify si Nominatim se queda corto.
@@ -41,14 +43,14 @@ Integrado en el portfolio (https://erickcoll.github.io/portfolio-erick-coll/) co
 ## Comandos de ejecución
 `npm install` · `npm run dev` · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (Edge instalado) · `npm run test:live` (real, con moderación; requiere `npm run dev -- --port 5199`).
 
-## Resultados de las últimas pruebas (2026-09-23)
-lint sin avisos · `npm test` 78/78 · `npm run test:e2e` 16/16 (incl. axe y PWA sin conexión) · build OK (JS 114 kB gzip + mapa 44 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
+## Resultados de las últimas pruebas (2026-09-24)
+lint sin avisos · `npm test` 85/85 · `npm run test:e2e` 21/21 (incl. axe, PWA sin conexión y mapa bajo la CSP de producción) · build OK (JS 115 kB gzip + mapa 45 kB gzip diferido + MapLibre ~420 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
 
 ## Puntos no verificados
 `docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».
 
 ## Próximo paso recomendado
-Que el usuario revise el resumen final, pruebe un enlace de Booking y decida si autoriza GitHub + Cloudflare.
+Que el usuario abra la vista previa de la rama (o la web tras fusionar), busque en Tokio o Pekín y confirme que el mapa sale en español; después, fusionar en `main`.
 
 ## Reglas de intervención
 Pedir permiso antes de: crear cuentas, usar credenciales, `git push`, desplegar o cualquier cosa con posible coste.

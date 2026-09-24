@@ -34,7 +34,10 @@ export interface Lodging {
   id: string
   source: 'openstreetmap'
   sourceId: string
+  /** Nombre para mostrar: el de OSM o, si está en otro alfabeto (p. ej., japonés), su traducción registrada en OSM. */
   name: string
+  /** Nombre original de OSM cuando `name` es una traducción. */
+  localName?: string
   kind: string
   latitude: number
   longitude: number

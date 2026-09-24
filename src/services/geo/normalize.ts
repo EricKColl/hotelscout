@@ -65,6 +65,25 @@ export function parseStars(raw?: string): number | undefined {
   return Number.isFinite(value) && value >= 1 && value <= 5 ? value : undefined
 }
 
+/** Letra que no es del alfabeto latino (japonés, chino, coreano, cirílico, árabe, griego…). */
+const NON_LATIN_LETTER = /(?!\p{Script=Latin})\p{L}/u
+
+/** Traducciones y transcripciones que los propios mapeadores añaden en OSM, por orden de preferencia. */
+const READABLE_NAME_TAGS = ['name:es', 'name:en', 'int_name', 'name:ja-Latn', 'name:ja_rm', 'name:ko-Latn', 'name:zh-Latn-pinyin']
+
+/**
+ * Si el nombre del alojamiento no está en alfabeto latino, usa su traducción de OSM (si existe) y guarda el original.
+ * Nunca se inventa ni se transcribe automáticamente: sin traducción en OSM, se muestra el nombre original.
+ */
+export function readableName(name: string, tags: Record<string, string>): { name: string; localName?: string } {
+  if (!NON_LATIN_LETTER.test(name)) return { name }
+  for (const key of READABLE_NAME_TAGS) {
+    const candidate = tags[key]?.trim()
+    if (candidate && !NON_LATIN_LETTER.test(candidate)) return { name: candidate, localName: name }
+  }
+  return { name }
+}
+
 /** Convierte elementos de Overpass en alojamientos con distancia real al punto de referencia. */
 export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodging[] {
   const seen = new Set<string>()
@@ -80,6 +99,7 @@ export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodgi
     const sourceId = `${el.type}/${el.id}`
     if (seen.has(sourceId)) continue
     seen.add(sourceId)
+    const names = readableName(name, tags)
     const stars = parseStars(tags.stars)
     const street = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
     const address = [street, tags['addr:city']].filter(Boolean).join(', ') || undefined
@@ -87,7 +107,7 @@ export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodgi
       id: `osm:${sourceId}`,
       source: 'openstreetmap',
       sourceId,
-      name,
+      ...names,
       kind,
       latitude,
       longitude,
@@ -98,11 +118,12 @@ export function normalizeLodgings(elements: OsmElement[], origin: LatLon): Lodgi
       address,
     })
   }
-  // En OSM un mismo hotel suele estar dos veces (edificio + punto): mismo nombre a menos de 60 m = duplicado.
+  // En OSM un mismo hotel suele estar dos veces (edificio + punto): mismo nombre (original) a menos de 60 m = duplicado.
   const sorted = out.sort((a, b) => a.distanceMeters - b.distanceMeters)
   const unique: Lodging[] = []
+  const originalName = (l: Lodging) => (l.localName ?? l.name).toLowerCase()
   for (const l of sorted) {
-    const dup = unique.some((u) => u.name.toLowerCase() === l.name.toLowerCase() && haversineMeters(u, l) < 60)
+    const dup = unique.some((u) => originalName(u) === originalName(l) && haversineMeters(u, l) < 60)
     if (!dup) unique.push(l)
   }
   return unique

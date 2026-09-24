@@ -25,6 +25,7 @@ async function mockApi(page: Page, opts: { geocode?: unknown; places?: unknown; 
     r.fulfill({ status: opts.placesStatus ?? 200, json: opts.places ?? OVERPASS }),
   )
   await page.route('https://tile.openstreetmap.org/**', (r) => r.abort())
+  await page.route('https://tiles.openfreemap.org/**', (r) => r.abort())
 }
 
 test.beforeEach(async ({ page }) => {
@@ -162,6 +163,7 @@ test('error del servicio (502) y reintento correcto', async ({ page }) => {
   await page.route('**/api/geocode*', (r) => r.fulfill({ json: [ATOCHA] }))
   await page.route('**/api/places*', (r) => (n++ === 0 ? r.fulfill({ status: 502, json: { error: {} } }) : r.fulfill({ json: OVERPASS })))
   await page.route('https://tile.openstreetmap.org/**', (r) => r.abort())
+  await page.route('https://tiles.openfreemap.org/**', (r) => r.abort())
   await page.goto('/')
   await page.getByLabel('Lugar de referencia').fill('Atocha')
   await page.getByRole('button', { name: 'Buscar lugar' }).click()

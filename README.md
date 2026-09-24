@@ -16,7 +16,7 @@
 
 - Busca un lugar (Nominatim) y **obliga a elegir** cuando hay varias coincidencias.
 - Localiza alojamientos con nombre en un radio de 300 m a 5 km (Overpass) con distancia real en línea recta (Haversine).
-- Mapa Leaflet con punto de referencia, radio y marcadores; filtros por tipo, estrellas y web propia; ordenación.
+- Mapa con **nombres en español en todo el mundo** (Tokio, no 東京), punto de referencia, radio y marcadores; al pulsar un marcador, la lista salta a su ficha. Filtros por tipo, estrellas y web propia; ordenación.
 - Botón **«Buscar en Booking.com»** con tus fechas y huéspedes: búsqueda por coordenadas ordenada por distancia. Es un enlace de búsqueda, no una oferta.
 - Favoritos e historial guardados solo en tu navegador. Instalable como app; abre sin conexión avisando de que no hay conexión.
 
@@ -39,14 +39,14 @@ Navegador (React PWA) ──► /api/* (Pages Functions: caché, límites, User-
 
 ## Tecnologías
 
-React 19 · TypeScript estricto · Vite · Tailwind CSS 4 · Leaflet · TanStack Query · Zod · Vitest · Playwright + axe · Cloudflare Pages Functions · PWA con service worker propio.
+React 19 · TypeScript estricto · Vite · Tailwind CSS 4 · Leaflet + MapLibre (teselas de OpenFreeMap) · TanStack Query · Zod · Vitest · Playwright + axe · Cloudflare Pages Functions · PWA con service worker propio.
 
 ## Calidad
 
 | Comprobación | Resultado |
 |---|---|
-| Unitarias e integración (Vitest) | 78 |
-| End-to-end (Playwright: flujo, errores, PWA sin conexión, móvil) | 16 |
+| Unitarias e integración (Vitest) | 85 |
+| End-to-end (Playwright: flujo, errores, PWA sin conexión, móvil, mapa con CSP de producción) | 21 |
 | Accesibilidad automática (axe, WCAG 2.x A/AA) | 0 infracciones |
 | Vulnerabilidades (`npm audit`) | 0 |
 | Verificación real | Nominatim, Overpass, Cloudflare y enlaces de Booking probados en navegador real |

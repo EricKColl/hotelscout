@@ -43,6 +43,22 @@ Fecha: 2026-09-23 · Entorno: Windows 11, Node 24.15, Microsoft Edge (Chromium) 
 
 Pruebas reales en Booking con navegador real: Tokio (nombre japonés), Buenos Aires (coordenadas negativas), Nueva York, Beverly Hills (apóstrofo), Dubái (nombre árabe, 2 niños con edades): el hotel sale el primero o entre los primeros y se conservan fechas y huéspedes. Descubiertos y corregidos: fechas > ~16 meses, habitaciones > adultos, respuestas de Overpass con error dentro de un 200, recorte silencioso de resultados, duplicados de OSM, estrellas con formato «4S», almacenamiento local dañado, Safari antiguo, nombres con caracteres de control. Añadidas 30 pruebas (entradas extremas del enlace, Overpass con «remark», almacenamiento corrupto) y 2 e2e.
 
+## Mapa en español (D-012) · 2026-09-24
+
+Entorno: contenedor Linux en la nube, Node 22, Chromium 141 sin interfaz (Playwright). Sin acceso de red a `tiles.openfreemap.org` ni a `tile.openstreetmap.org` (bloqueados por el entorno), por eso las teselas se simularon.
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run lint` | Sin avisos |
+| `npm test` | **85 / 85** (6 archivos; +7: etiquetas en español y nombres de hoteles legibles) |
+| `npm run test:e2e` | **21 / 21** (+5: mapa vectorial bajo la CSP de producción, alternativa OSM si OpenFreeMap no responde o da un estilo no válido, hoteles con nombre japonés, clic en marcador → ficha). Repetido 3 veces seguidas: 63 / 63 |
+| `npm run build` | Correcto. JS principal ≈ 115 kB gzip (sin cambios); mapa ≈ 45 kB gzip; MapLibre ≈ 276 kB gzip + worker ≈ 144 kB gzip, **solo al mostrar el mapa** |
+| `npm audit` | 0 vulnerabilidades |
+| Visual con el estilo Liberty real (de GitHub) y teselas simuladas de Tokio | Rotula «Tokio», «Estación de Tokio», «Ginza», «Marunouchi», «Harumi-dori»; atribución OpenFreeMap/OpenMapTiles/OSM visible; botones «Acercar»/«Alejar» |
+| Pruebas de que las pruebas detectan fallos | Quitando OpenFreeMap de la CSP, la prueba del mapa vectorial falla; quitando el desplazamiento a la ficha, falla su prueba |
+
+**No verificado aún:** el mapa con las teselas reales de OpenFreeMap en la web publicada; Firefox/Safari con MapLibre; rendimiento en móviles modestos.
+
 ## Problemas pendientes y no verificados
 
 - **Booking a veces muestra su portada** por un control antirrobots intermitente (no depende de nosotros); se avisa en pantalla. Booking no lista todos los hoteles de OSM (p. ej. Olive Inn, Mörfelden-Walldorf: salen los más cercanos).
