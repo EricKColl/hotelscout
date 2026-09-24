@@ -20,7 +20,7 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 - Fase 7: pruebas y QA (`docs/qa-report.md`).
 - Fase 8: `README.md`, `architecture.md`, `deployment.md`, `limitations.md`, `LICENSE` (MIT a nombre del usuario; cambiable).
 
-- Mejora D-012 (2026-09-24): mapa con nombres en español (OpenFreeMap + MapLibre, alternativa automática a OSM), hoteles con nombre en otro alfabeto traducidos según OSM («Nombre local» debajo), clic en marcador → la lista salta a su ficha, controles del mapa en español. En la rama `claude/epic-darwin-ibmafq`, **pendiente de revisar y fusionar en `main`**.
+- Mejora D-012 (2026-09-24): mapa con nombres en español (OpenFreeMap + MapLibre, alternativa automática a OSM), hoteles con nombre en otro alfabeto traducidos según OSM («Nombre local» debajo), clic en marcador → la lista salta a su ficha, controles del mapa en español. Publicada en https://hotelscout.pages.dev (PR #1 fusionada) y **verificada por el usuario el 2026-09-24**.
 
 ## Tareas pendientes
 1. Opcionales: probar en Firefox/Safari y en móvil real (instalación PWA); Lighthouse; mejorar la latencia de Overpass (búsqueda sin caché ~50 s); valorar Photon/Geoapify si Nominatim se queda corto.
@@ -50,7 +50,7 @@ lint sin avisos · `npm test` 85/85 · `npm run test:e2e` 21/21 (incl. axe, PWA 
 `docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».
 
 ## Próximo paso recomendado
-Que el usuario abra la vista previa de la rama (o la web tras fusionar), busque en Tokio o Pekín y confirme que el mapa sale en español; después, fusionar en `main`.
+Solo quedan mejoras opcionales (ver «Tareas pendientes»).
 
 ## Reglas de intervención
 Pedir permiso antes de: crear cuentas, usar credenciales, `git push`, desplegar o cualquier cosa con posible coste.
