@@ -57,7 +57,9 @@ Entorno: contenedor Linux en la nube, Node 22, Chromium 141 sin interfaz (Playwr
 | Visual con el estilo Liberty real (de GitHub) y teselas simuladas de Tokio | Rotula «Tokio», «Estación de Tokio», «Ginza», «Marunouchi», «Harumi-dori»; atribución OpenFreeMap/OpenMapTiles/OSM visible; botones «Acercar»/«Alejar» |
 | Pruebas de que las pruebas detectan fallos | Quitando OpenFreeMap de la CSP, la prueba del mapa vectorial falla; quitando el desplazamiento a la ficha, falla su prueba |
 
-**No verificado aún:** el mapa con las teselas reales de OpenFreeMap en la web publicada; Firefox/Safari con MapLibre; rendimiento en móviles modestos.
+**Verificado en real por el usuario (2026-09-24):** el mapa con las teselas reales de OpenFreeMap en https://hotelscout.pages.dev sale en español y funciona bien.
+
+**No verificado aún:** Firefox/Safari con MapLibre; rendimiento en móviles modestos.
 
 ## Problemas pendientes y no verificados
 
