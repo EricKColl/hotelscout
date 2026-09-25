@@ -73,9 +73,12 @@ export type GeoErrorCode =
 
 export class GeoError extends Error {
   code: GeoErrorCode
-  constructor(code: GeoErrorCode, message: string) {
+  /** La conexión se cortó antes de recibir respuesta (típico de datos móviles): se puede reintentar solo una vez. */
+  connectionDropped: boolean
+  constructor(code: GeoErrorCode, message: string, opts: { connectionDropped?: boolean } = {}) {
     super(message)
     this.name = 'GeoError'
     this.code = code
+    this.connectionDropped = opts.connectionDropped ?? false
   }
 }

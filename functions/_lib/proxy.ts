@@ -4,6 +4,8 @@
  * - Identifica la aplicación con User-Agent propio.
  * - Caché (Cache API de Cloudflare cuando existe) y límite por IP (por instancia, "mejor esfuerzo").
  * - Nominatim: como máximo 1 petición/segundo por instancia.
+ * - Si el móvil pierde la conexión a mitad (túnel, cambio de antena), la consulta sigue y se guarda en caché
+ *   con `waitUntil`, de modo que el reintento sale de la caché sin volver a cargar Overpass.
  */
 
 export interface ProxyEnv {
@@ -15,6 +17,11 @@ export interface ProxyDeps {
   cache?: { match(req: Request): Promise<Response | undefined>; put(req: Request, res: Response): Promise<void> }
   now: () => number
   sleep: (ms: number) => Promise<void>
+  /**
+   * `context.waitUntil` de Cloudflare Pages Functions: mantiene viva la consulta hasta 30 s después de que el
+   * cliente se desconecte (documentación oficial de Cloudflare, consultada el 2026-09-25). Opcional (dev y pruebas).
+   */
+  waitUntil?: (promise: Promise<unknown>) => void
 }
 
 export const defaultDeps = (): ProxyDeps => ({
@@ -91,12 +98,18 @@ async function withCache(
     res.headers.set('X-HotelScout-Cache', 'HIT')
     return res
   }
-  const res = await produce()
-  if (res.ok && deps.cache) {
-    const cached = new Response(res.clone().body, res)
-    cached.headers.set('Cache-Control', `public, max-age=${ttl}, s-maxage=${ttl}`)
-    await deps.cache.put(cacheKey, cached)
-  }
+  const cache = deps.cache
+  const pending = produce().then(async (res) => {
+    if (res.ok && cache) {
+      const cached = new Response(res.clone().body, res)
+      cached.headers.set('Cache-Control', `public, max-age=${ttl}, s-maxage=${ttl}`)
+      await cache.put(cacheKey, cached)
+    }
+    return res
+  })
+  // Sin esto, Cloudflare cancela la consulta en cuanto el móvil se desconecta y el resultado se pierde.
+  deps.waitUntil?.(pending.catch(() => undefined))
+  const res = await pending
   res.headers.set('X-HotelScout-Cache', 'MISS')
   return res
 }
