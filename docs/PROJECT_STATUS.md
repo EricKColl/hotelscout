@@ -22,7 +22,7 @@ PWA React + TS → Cloudflare Pages Functions (proxy con caché) → Nominatim /
 
 - Mejora D-012 (2026-09-24): mapa con nombres en español (OpenFreeMap + MapLibre, alternativa automática a OSM), hoteles con nombre en otro alfabeto traducidos según OSM («Nombre local» debajo), clic en marcador → la lista salta a su ficha, controles del mapa en español. Publicada en https://hotelscout.pages.dev (PR #1 fusionada) y **verificada por el usuario el 2026-09-24**.
 
-- Mejora D-013 (2026-09-25): robustez para datos móviles de viaje (eSIM en Japón): tiempo límite real, reintento automático único, espera y reanudación sin conexión, proxy con `waitUntil`, service worker que abre sin conexión desde la primera visita y con cobertura débil, mapa tolerante a conexiones lentas. Guía: `docs/viaje-con-esim.md`.
+- Mejora D-013 (2026-09-25): robustez para datos móviles de viaje (eSIM en Japón): tiempo límite real, reintento automático único, espera y reanudación sin conexión, proxy con `waitUntil`, service worker que abre sin conexión desde la primera visita y con cobertura débil, mapa tolerante a conexiones lentas. Guía: `docs/viaje-con-esim.md`. Publicada en https://hotelscout.pages.dev (PR #3 fusionada) y **verificada por el usuario en su móvil el 2026-09-25**: `sw.js` con `hotelscout-v2`, la app abre en modo avión con «Sin conexión», y una búsqueda sin conexión muestra «Esperando conexión…» y se lanza sola al volver la red.
 
 ## Tareas pendientes
 1. Opcionales: probar en Firefox/Safari y en móvil real (instalación PWA); Lighthouse; mejorar la latencia de Overpass (búsqueda sin caché ~50 s); valorar Photon/Geoapify si Nominatim se queda corto.
@@ -52,7 +52,7 @@ lint sin avisos · `npm test` 95/95 · `npm run test:e2e` 23/23 (Chromium; incl.
 `docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».
 
 ## Próximo paso recomendado
-Antes del viaje a Japón: abrir la web en el móvil con Wi‑Fi, hacer una búsqueda con mapa y pulsar «Actualizar ahora» si aparece (lista completa en `docs/viaje-con-esim.md`). Después, solo mejoras opcionales.
+Móvil preparado para el viaje a Japón (verificado el 2026-09-25). Solo quedan mejoras opcionales (ver «Tareas pendientes»).
 
 ## Reglas de intervención
 Pedir permiso antes de: crear cuentas, usar credenciales, `git push`, desplegar o cualquier cosa con posible coste.

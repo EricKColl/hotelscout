@@ -86,4 +86,6 @@ Entorno: contenedor Linux en la nube, Chromium 141 sin interfaz (Playwright con 
 | `npm audit` | 0 vulnerabilidades |
 | La prueba nueva detecta fallos | La de «primera visita sin conexión» falló con la primera versión del service worker (copias no encontradas por `Vary: Origin`); corregido con `ignoreVary` |
 
-**No verificado:** en un móvil real en Japón; consumo real de datos por búsqueda (Overpass + teselas); moneda que muestra Booking con una IP extranjera; `waitUntil` en producción (solo con pruebas simuladas).
+**Verificado en real por el usuario (2026-09-25), en su móvil con https://hotelscout.pages.dev:** `sw.js` publicado con `hotelscout-v2`; en modo avión la app abre con el aviso «Sin conexión»; una búsqueda lanzada sin conexión muestra «Esperando conexión…» y se hace sola al quitar el modo avión.
+
+**No verificado:** en Japón con la eSIM; consumo real de datos por búsqueda (Overpass + teselas); moneda que muestra Booking con una IP extranjera; `waitUntil` en producción (solo con pruebas simuladas).
