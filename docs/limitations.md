@@ -32,6 +32,10 @@ Lo que **sí** hace y lo que **no** hace la aplicación (2026-09-24).
 - **Teselas OSM (alternativa):** solo uso interactivo normal; pueden retirar el acceso.
 - **Cloudflare (gratis):** 100 000 peticiones/día a las Functions; al superarlo, fallan (sin cargo). Caché por centro de datos.
 - El límite por IP del proxy es «mejor esfuerzo» (memoria de cada instancia).
+- **Cloudflare `waitUntil`:** si el móvil se desconecta, la consulta sigue como máximo 30 s más; una consulta de Overpass que tarde más se pierde igualmente y hay que reintentarla.
+
+## Datos móviles y eSIM
+La app no depende del tipo de conexión (Wi‑Fi, SIM o eSIM) ni del país por el que salga. Tolera cortes, falta de cobertura y conexiones lentas (ver `viaje-con-esim.md`). Booking puede elegir moneda según el país de la conexión (no verificado).
 
 ## Técnicas
 - Probado en Chromium/Edge; Firefox y Safari sin probar.

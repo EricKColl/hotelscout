@@ -149,3 +149,29 @@ describe('proxy /api/places: Overpass devuelve 200 con error dentro', () => {
     expect((await res.json()).elements).toHaveLength(1)
   })
 })
+
+describe('proxy: el móvil se desconecta a mitad de la consulta', () => {
+  it('la consulta se registra con waitUntil y su resultado queda en caché para el reintento', async () => {
+    const store = new Map<string, Response>()
+    const cache: ProxyDeps['cache'] = { match: async (r) => store.get(r.url)?.clone(), put: async (r, res) => { store.set(r.url, res) } }
+    const pending: Promise<unknown>[] = []
+    const deps = { ...makeDeps(async () => okJson({ elements: [] }), cache), waitUntil: (p: Promise<unknown>) => void pending.push(p) }
+    await handlePlaces(req('/api/places?lat=35.6812&lon=139.7671&radius=1000'), {}, deps)
+    expect(pending).toHaveLength(1)
+    await Promise.all(pending)
+    expect(store.size).toBe(1)
+    const retry = await handlePlaces(req('/api/places?lat=35.6812&lon=139.7671&radius=1000'), {}, deps)
+    expect(retry.headers.get('X-HotelScout-Cache')).toBe('HIT')
+    expect(deps.calls).toHaveLength(1)
+  })
+  it('un error del servicio no rompe waitUntil ni se guarda', async () => {
+    const store = new Map<string, Response>()
+    const cache: ProxyDeps['cache'] = { match: async (r) => store.get(r.url)?.clone(), put: async (r, res) => { store.set(r.url, res) } }
+    const pending: Promise<unknown>[] = []
+    const deps = { ...makeDeps(async () => new Response('', { status: 504 }), cache), waitUntil: (p: Promise<unknown>) => void pending.push(p) }
+    const res = await handleGeocode(req('/api/geocode?q=Tokio'), {}, deps)
+    expect(res.status).toBe(502)
+    await expect(Promise.all(pending)).resolves.toBeDefined()
+    expect(store.size).toBe(0)
+  })
+})

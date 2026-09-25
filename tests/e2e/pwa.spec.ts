@@ -32,3 +32,27 @@ test('el service worker no guarda respuestas de /api', async ({ page }) => {
   expect(cached.some((p) => p.startsWith('/api/'))).toBe(false)
   expect(cached).toContain('/')
 })
+
+test('sin conexión desde la PRIMERA visita (la app se guarda al instalarse, sin necesidad de recargar antes)', async ({ page, context }) => {
+  await page.goto('/')
+  await page.evaluate(() => navigator.serviceWorker.ready)
+  await context.setOffline(true)
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Alojamientos cerca')
+  await expect(page.getByLabel('Lugar de referencia')).toBeVisible()
+  await expect(page.getByText('Sin conexión')).toBeVisible()
+  await context.setOffline(false)
+})
+
+test('cobertura débil («con rayitas pero sin datos»): la app abre en segundos con la copia guardada', async ({ page, context }) => {
+  await page.goto('/')
+  await page.evaluate(() => navigator.serviceWorker.ready)
+  await page.reload()
+  // La red acepta la petición pero no responde (lie‑fi): la página no debe quedarse en blanco esperando.
+  await context.route('http://localhost:4173/', () => new Promise(() => {}))
+  const started = Date.now()
+  await page.reload({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Alojamientos cerca')
+  expect(Date.now() - started).toBeLessThan(12_000)
+  await context.unrouteAll({ behavior: 'ignoreErrors' })
+})

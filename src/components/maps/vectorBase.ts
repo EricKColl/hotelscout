@@ -18,8 +18,11 @@ export const VECTOR_ATTRIBUTION =
   '© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> · ' +
   'Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
 
-const STYLE_TIMEOUT_MS = 8_000
-const LOAD_TIMEOUT_MS = 20_000
+// Márgenes pensados para datos móviles lentos (eSIM de viaje, cobertura débil): si se agotan se usa el mapa de OSM,
+// que rotula en el idioma local (en Japón, en japonés), así que conviene no rendirse antes de tiempo.
+const STYLE_TIMEOUT_MS = 15_000
+/** Tiempo máximo SIN PROGRESO (ninguna tesela, fuente o letra nueva) antes de rendirse. Cada avance lo reinicia. */
+const STALL_TIMEOUT_MS = 20_000
 
 // El worker se sirve desde nuestro propio dominio (/assets): lo permite la CSP (`worker-src 'self'`).
 setWorkerUrl(workerUrl)
@@ -43,7 +46,8 @@ async function fetchStyle(signal: AbortSignal): Promise<StyleSpecification> {
 
 /**
  * Añade el mapa base vectorial a `map`. Se resuelve cuando el mapa se ha dibujado.
- * Se rechaza (y retira la capa) si el estilo no llega, si una fuente no carga o si tarda demasiado.
+ * Se rechaza (y retira la capa) si el estilo no llega, si una fuente no carga o si pasa demasiado tiempo sin avanzar
+ * (una conexión lenta pero que sigue descargando NO se considera fallo).
  */
 export async function addVectorBase(map: L.Map, signal: AbortSignal): Promise<L.Layer> {
   const style = toSpanishLabels(await fetchStyle(signal))
@@ -60,11 +64,18 @@ export async function addVectorBase(map: L.Map, signal: AbortSignal): Promise<L.
       if (settled) return
       settled = true
       clearTimeout(timer)
+      gl.off('data', progress)
       if (error === undefined) return resolve(layer)
       map.removeLayer(layer)
       reject(error)
     }
-    const timer = setTimeout(() => settle(new Error('El mapa vectorial tarda demasiado')), LOAD_TIMEOUT_MS)
+    const stalled = () => settle(new Error('El mapa vectorial no avanza'))
+    let timer = setTimeout(stalled, STALL_TIMEOUT_MS)
+    const progress = () => {
+      clearTimeout(timer)
+      timer = setTimeout(stalled, STALL_TIMEOUT_MS)
+    }
+    gl.on('data', progress)
     layer.once('remove', () => settle(new Error('Mapa cerrado')))
     gl.once('load', () => settle())
     // Error de una fuente completa (no de una tesela suelta) antes de dibujarse: no va a cargar.

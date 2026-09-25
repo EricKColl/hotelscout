@@ -72,3 +72,18 @@ Entorno: contenedor Linux en la nube, Node 22, Chromium 141 sin interfaz (Playwr
 - **Lighthouse/rendimiento medido:** no ejecutado; solo tamaños de bundle.
 - **Overpass alternativo (`overpass.private.coffee`):** no respondió en una prueba manual con 30 s de límite.
 - Modo B: no existe, por tanto sin pruebas de precios reales.
+
+## Datos móviles / eSIM de viaje (D-013) · 2026-09-25
+
+Entorno: contenedor Linux en la nube, Chromium 141 sin interfaz (Playwright con `executablePath`), sin acceso de red a los servicios reales.
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run lint` | Sin avisos |
+| `npm test` | **95 / 95** (+10: tiempo límite con señal externa, corte de conexión reintentable, cuerpo cortado, cancelación ≠ error, política de reintento, espera sin conexión y reanudación, reintento automático, «Reintentar» tras fallo persistente, `waitUntil` + caché en el proxy, error sin caché) |
+| `npm run test:e2e` | **23 / 23** (+2: app sin conexión desde la primera visita; «lie‑fi»: la red no responde y la app abre en < 12 s con la copia guardada). Pruebas PWA repetidas 4 veces: 16 / 16 |
+| `npm run build` | Correcto. Primera visita ≈ 120 kB gzip; mapa la primera vez ≈ 480 kB gzip (luego en caché) |
+| `npm audit` | 0 vulnerabilidades |
+| La prueba nueva detecta fallos | La de «primera visita sin conexión» falló con la primera versión del service worker (copias no encontradas por `Vary: Origin`); corregido con `ignoreVary` |
+
+**No verificado:** en un móvil real en Japón; consumo real de datos por búsqueda (Overpass + teselas); moneda que muestra Booking con una IP extranjera; `waitUntil` en producción (solo con pruebas simuladas).

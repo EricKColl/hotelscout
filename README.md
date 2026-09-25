@@ -75,7 +75,7 @@ Cloudflare Pages (plan gratuito): compilación `npm run build`, salida `dist`, c
 
 ## Documentación
 
-[`architecture.md`](docs/architecture.md) · [`provider-research.md`](docs/provider-research.md) · [`decisions.md`](docs/decisions.md) · [`qa-report.md`](docs/qa-report.md) · [`limitations.md`](docs/limitations.md) · [`deployment.md`](docs/deployment.md)
+[`architecture.md`](docs/architecture.md) · [`provider-research.md`](docs/provider-research.md) · [`decisions.md`](docs/decisions.md) · [`qa-report.md`](docs/qa-report.md) · [`limitations.md`](docs/limitations.md) · [`deployment.md`](docs/deployment.md) · [`viaje-con-esim.md`](docs/viaje-con-esim.md) (uso de viaje con datos móviles o eSIM)
 
 ## Datos y privacidad
 

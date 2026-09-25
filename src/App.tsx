@@ -5,7 +5,7 @@ import LodgingCard from './components/hotels/LodgingCard'
 import Notice from './components/common/Notice'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import { osmSource } from './services/providers/osm'
-import { searchPlaces } from './services/geo/client'
+import { searchPlaces, shouldRetryOnce } from './services/geo/client'
 import { rankPlaces } from './services/geo/normalize'
 import { GeoError, type Place, type PlaceCategory } from './types/geo'
 import { addDaysISO, nightsBetween, todayLocalISO, type Trip } from './schemas/search'
@@ -78,6 +78,9 @@ function useOnline(): boolean {
   return online
 }
 
+// Con datos móviles la conexión se corta a ratos: un único reintento automático a los 2 s (el servidor guarda en caché lo que ya consultó).
+const RETRY_DELAY_MS = 2_000
+
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
 export default function App() {
@@ -94,9 +97,12 @@ export default function App() {
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistory)
   const [formKey, setFormKey] = useState(0)
   const [formInitial, setFormInitial] = useState<Partial<SearchInput>>()
+  const [lastQuery, setLastQuery] = useState('')
 
   const geocode = useMutation({
     mutationFn: (q: string) => searchPlaces(q),
+    retry: shouldRetryOnce,
+    retryDelay: RETRY_DELAY_MS,
     onSuccess: (list) => {
       const ranked = rankPlaces(list, typeHint)
       setCandidates(ranked)
@@ -133,7 +139,8 @@ export default function App() {
       return result
     },
     enabled: Boolean(place && trip),
-    retry: false,
+    retry: shouldRetryOnce,
+    retryDelay: RETRY_DELAY_MS,
     staleTime: 30 * 60_000,
   })
 
@@ -149,6 +156,7 @@ export default function App() {
     setPlace(undefined)
     setFilters(DEFAULT_FILTERS)
     setSelectedId(undefined)
+    setLastQuery(input.query)
     geocode.mutate(input.query)
   }
 
@@ -180,6 +188,10 @@ export default function App() {
 
   const geoError = geocode.error ? describeError(geocode.error) : undefined
   const lodgingError = lodgingsQuery.error ? describeError(lodgingsQuery.error) : undefined
+  // TanStack Query pausa las peticiones sin conexión y las lanza solas al volver (túneles, metro, cambio Wi‑Fi ↔ datos).
+  const geocodePaused = geocode.isPending && geocode.isPaused
+  const lodgingsPaused = lodgingsQuery.isPending && lodgingsQuery.fetchStatus === 'paused'
+  const canRetryGeocode = geoError && geocode.error instanceof GeoError && geocode.error.code !== 'invalid_request' && geocode.error.code !== 'invalid_response'
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -209,7 +221,7 @@ export default function App() {
 
         {!online && (
           <Notice tone="warning" title="Sin conexión">
-            Puedes ver tus favoritos e historial guardados en este dispositivo, pero no buscar. Los datos guardados no son disponibilidad actual.
+            Puedes ver tus favoritos e historial guardados en este dispositivo. Si lanzas una búsqueda, se hará sola al recuperar la conexión. Los datos guardados no son disponibilidad actual.
           </Notice>
         )}
 
@@ -243,9 +255,29 @@ export default function App() {
         <SearchForm key={formKey} busy={geocode.isPending} initial={formInitial} onSubmit={handleSearch} />
 
         <div id="resultados" tabIndex={-1} className="space-y-4" aria-live="polite">
-          {geocode.isPending && <Notice title="Buscando el lugar…">Consultando OpenStreetMap.</Notice>}
+          {geocodePaused && (
+            <Notice tone="warning" title="Esperando conexión…">
+              No hay conexión a Internet ahora mismo. La búsqueda del lugar se hará sola en cuanto vuelva (no hace falta pulsar nada).
+            </Notice>
+          )}
+          {geocode.isPending && !geocodePaused && <Notice title="Buscando el lugar…">Consultando OpenStreetMap.</Notice>}
           {geoError && (
-            <Notice tone={geoError.tone} title={geoError.title} action={<button type="button" onClick={() => geocode.reset()} className="rounded-md border border-current px-3 py-1 text-sm">Cerrar</button>}>
+            <Notice
+              tone={geoError.tone}
+              title={geoError.title}
+              action={
+                <span className="flex gap-2">
+                  {canRetryGeocode && lastQuery && (
+                    <button type="button" onClick={() => geocode.mutate(lastQuery)} className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white">
+                      Reintentar
+                    </button>
+                  )}
+                  <button type="button" onClick={() => geocode.reset()} className="rounded-md border border-current px-3 py-1 text-sm">
+                    Cerrar
+                  </button>
+                </span>
+              }
+            >
               {geoError.detail}
             </Notice>
           )}
@@ -297,7 +329,12 @@ export default function App() {
                 )}
               </div>
 
-              {lodgingsQuery.isPending && <Notice title="Buscando alojamientos…">Puede tardar hasta un minuto si el servidor público de OpenStreetMap está saturado.</Notice>}
+              {lodgingsPaused && (
+                <Notice tone="warning" title="Esperando conexión…">
+                  No hay conexión a Internet ahora mismo. La búsqueda de alojamientos se hará sola en cuanto vuelva (no hace falta pulsar nada).
+                </Notice>
+              )}
+              {lodgingsQuery.isPending && !lodgingsPaused && <Notice title="Buscando alojamientos…">Puede tardar hasta un minuto si el servidor público de OpenStreetMap está saturado.</Notice>}
               {lodgingError && (
                 <Notice tone={lodgingError.tone} title={lodgingError.title} action={<button type="button" onClick={() => lodgingsQuery.refetch()} className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white">Reintentar</button>}>
                   {lodgingError.detail}

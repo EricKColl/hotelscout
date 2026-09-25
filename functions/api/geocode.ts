@@ -1,4 +1,10 @@
-import { handleGeocode, type ProxyEnv } from '../_lib/proxy'
+import { defaultDeps, handleGeocode, type ProxyEnv } from '../_lib/proxy'
 
-export const onRequestGet = ({ request, env }: { request: Request; env: ProxyEnv }) =>
-  handleGeocode(request, env)
+interface PagesContext {
+  request: Request
+  env: ProxyEnv
+  waitUntil(promise: Promise<unknown>): void
+}
+
+export const onRequestGet = (context: PagesContext) =>
+  handleGeocode(context.request, context.env, { ...defaultDeps(), waitUntil: (p) => context.waitUntil(p) })
