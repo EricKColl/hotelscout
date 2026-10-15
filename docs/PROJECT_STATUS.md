@@ -1,6 +1,6 @@
 # Estado del proyecto — HotelScout
 
-Última actualización: 2026-09-25
+Última actualización: 2026-10-15
 
 ## Objetivo
 PWA gratuita en español para localizar alojamientos cerca de un punto de referencia y derivar a las plataformas originales. Fuente de verdad: `docs/SPEC.md` con los ajustes del usuario (`docs/decisions.md`, D-006).
@@ -45,8 +45,10 @@ Integrado en el portfolio (https://erickcoll.github.io/portfolio-erick-coll/) co
 ## Comandos de ejecución
 `npm install` · `npm run dev` · `npm run build` · `npm test` · `npm run lint` · `npm run test:e2e` (Edge instalado) · `npm run test:live` (real, con moderación; requiere `npm run dev -- --port 5199`).
 
-## Resultados de las últimas pruebas (2026-09-25)
-lint sin avisos · `npm test` 95/95 · `npm run test:e2e` 23/23 (Chromium; incl. sin conexión desde la primera visita y cobertura débil) · 2026-09-24: (incl. axe, PWA sin conexión y mapa bajo la CSP de producción) · build OK (JS 115 kB gzip + mapa 45 kB gzip diferido + MapLibre ~420 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
+## Resultados de las últimas pruebas (2026-10-15)
+Mantenimiento: `npm audit` detectó una vulnerabilidad alta nueva en `source-map-js` 1.2.1 (GHSA-68fv-2mgg-jv7q; solo se usa al compilar, no llega a la web publicada). Actualizada a 1.2.2 con `npm audit fix`. Tras el cambio: lint sin avisos · typecheck OK · `npm test` 95/95 · `npm run test:e2e` 23/23 (Chromium) · build OK · `npm audit` 0 vulnerabilidades.
+
+Anteriores (2026-09-25): lint sin avisos · `npm test` 95/95 · `npm run test:e2e` 23/23 (Chromium; incl. sin conexión desde la primera visita y cobertura débil) · 2026-09-24: (incl. axe, PWA sin conexión y mapa bajo la CSP de producción) · build OK (JS 115 kB gzip + mapa 45 kB gzip diferido + MapLibre ~420 kB gzip diferido) · `npm audit` 0 vulnerabilidades · prueba real: Nominatim y Overpass OK en una ejecución, después 429/504 (esperado). Detalle: `docs/qa-report.md`.
 
 ## Puntos no verificados
 `docs/provider-research.md` §7 y `docs/qa-report.md` «pendientes».
